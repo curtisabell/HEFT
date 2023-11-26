@@ -164,8 +164,7 @@ an example file for a system with two bare states and a single channel.
 HEFTFitting.config
 ```
 
--
-Lines 2 – 7 control the bounds of the parameter search. Currently I have it setup so that the bounds can be individually
+- Lines 2 – 7 control the bounds of the parameter search. Currently I have it setup so that the bounds can be individually
 set for each bare mass, and set collectively for each of the other types of parameter: $g_{\alpha}^{B_{0}}$, $\Lambda_{\alpha}^{B_{0}}$, $v_{\alpha\beta}$, $\Lambda_{v,\alpha\beta}$-
 I found that being able to set the bounds for each individual parameter was pretty tedious when I wanted to alter them
 for studies with a lot of parameters, such as the 2b3c odd-parity nucleons which had 23 or so parameters.
@@ -177,13 +176,11 @@ to be changed from my experience.
 I used to manually scale the parameters to include bounds since Powell’s old fitting code (`minf.f90`) didn’t allow for
 bounded fits (BOBYQA does). That’s why some of the bounds are set to numbers like 0.0001 instead of 0.0, since my
 scaling implementation didn’t allow for a bound of zero.
--
-Line 11 dictates which parameters are free during the fitting process. Here, I’m using a `T` (True) to denote that the
+- Line 11 dictates which parameters are free during the fitting process. Here, I’m using a `T` (True) to denote that the
 parameter is varied during fitting, and a `F` (False) to say that the parameter is held fixed. So in this example, I’m
 varying the bare mass and the couplings, but holding the regulator parameters ($\Lambda$) fixed.
 If a parameter is held fixed, it’ll use the value of whichever parameter set `allFits.params` is currently using.
--
-The fitting code (`fitScattering_bobyqa.f90`) doesn’t read anything after the previous line. As a result I tend to
+- The fitting code (`fitScattering_bobyqa.f90`) doesn’t read anything after the previous line. As a result I tend to
 use the space afterwards to store alternative sets of which parameters are fixed, so I can quickly switch between them.
 
 ## Constraining the Fit Parameters
