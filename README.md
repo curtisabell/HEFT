@@ -161,7 +161,20 @@ an example file for a system with two bare states and a single channel.
 
 **HEFTFitting.config for $P_{33}$ 2b1c:**
 ```
-HEFTFitting.config
+ 1  #      Bounds                  Errors
+ 2  m1     1.2         1.8         1e-5
+ 3  m2     1.2         1.8         1e-5
+ 4  g      0.00001     1.0	       1e-4
+ 5  Lam    0.6         1.2	       1e-5
+ 6  v     -1.0        -0.00001     1e-4
+ 7  Lamv   0.6         1.2	       1e-5
+ 8
+ 9  # Which parameters are active
+10  # m_b1      m_b2      g_b1c1    g_b2c1    Lam_b1c1  Lam_b2c1   v_c1c1    Lam_v_c1
+11    T         T         T         T         F         F          T         F
+12
+13    T         T         T         T         T         T          T         T
+14    F         T         F         T         F         T          F         F
 ```
 
 - Lines 2 – 7 control the bounds of the parameter search. Currently I have it setup so that the bounds can be individually
@@ -223,7 +236,13 @@ The config file for this is:
 
 **HEFTInfinite.config for $S_{11}$ 2b3c:**
 ```
-HEFTInfinite.config
+1  # Config file for infinite volume HEFT
+2
+3  # Scattering observables calculation (infiniteVol.f90)
+4  E_init          1.1
+5  E_final         1.735
+6  nPoints         256
+7  useDataPoints   False
 ```
 
 This config file is pretty minimal, and mostly is just setting up the output for plotting. If `useDataPoints` on line 7
