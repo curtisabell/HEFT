@@ -2,6 +2,9 @@
 This file is intended to provide an overview of how I would use this code to perform a typical HEFT analysis.
 I will provide a brief overview of my typical workflow, with more detail provided for each step afterwards.
 
+## Folder Structure
+The folder `src` contains all of todo
+
 # Work Flow
 1. Run `newProject.py` to easily set up all the config files, and skip to step 4.
 To do the initial setup manually, go to step 2.
@@ -86,3 +89,21 @@ An example of this file for the $S_{11}$ 2b3c (odd-parity nucleons) system is sh
     There are three customisation options here, which describe the functions used for $G_{\alpha}^{B_{0}}(k)$, $V_{\alpha\beta}(k,k')$, and the regulator $u(k,\Lambda)$.
     The labels `A`, `B`, etc. correspond to functions in `heftCode/heft.f90`, with names such as `u_k_A`, `g_k_B`, and `f_k_A`.
     Note that `f_k` represents the separable part of $V_{\alpha\beta}(k,k') = v_{\alpha\beta}\, f_{\alpha}(k)\, f_{\beta}(k')$.
+
+
+## 4. allFits.params
+With the general properties of the system of interest set out in \ttt{HEFT.config}, we're able to generate the file which will contain all of the parameter sets for the system.
+These parameters are the bare mass(es) $m_{B_{0}}^{(0)}$, the couplings between bare basis states and two-particle basis states (2-1 couplings) $g_{\alpha}^{B_{0}}$, the regulator parameters for 2-1 interactions $\Lambda_{\alpha}^{B_{0}}$, the couplings between two-particle basis states (2-2 couplings) $v_{\alpha\beta}$, and the regulator parameters for 2-2 interactions $\Lambda_{v,\alpha}$.
+
+**title test**
+```
+1      nParam        5
+2      iChoice       1
+3      paramEnds  1 2 3 4 5
+4      n    m_bare   g_Delta   Lambda    v_piN     Lambda_v     chi2    Notes
+5      1    1.4000   0.10000   0.8000   -0.10000   0.8000        0.00   Default
+6      2    1.3588   0.17615   0.8000   -0.02863   0.8000      236.81   AAA
+7      3    1.4073   0.00000   0.8000   -0.00290   8.0000    24373.49   AAA
+8      4    1.3850   0.14057   0.8000   -0.03066   0.8000      244.65   AAB
+9      0    0.0000   0.00000   0.0000    0.00000   0.0000        0.00
+```
