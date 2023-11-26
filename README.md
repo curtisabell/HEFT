@@ -151,6 +151,119 @@ considering, plus at least half the width of the resonance. This is the minimum 
 though in practice you may want to go slightly higher. You’ll also want to consider the energies which any channels
 open up that you’re not interested in, and the masses of excited states in the spectrum which you don’t want to study.
 As a couple of examples, in the 1b1c $\Delta(1232)$ study, we stop at 1350 MeV, since this is approximately where the $\pi\Delta$
-channel opens. In the 2b3c S11 study, we stopped at 1750 MeV, since that is enough to encapsulate the $N^{\ast}(1650)$
+channel opens. In the 2b3c $S_{11}$ study, we stopped at 1750 MeV, since that is enough to encapsulate the $N^{\ast}(1650)$
 which has a width of approximately 125 MeV, without including too many effects from the $N^{\ast}(1895)$.
 6. Finally, you’ll want to select the partial wave of interest.
+
+## 6. HEFTFitting.config
+Using the scattering data, we can now attempt to perform a fit by first setting up the `HEFTFitting.config` file. Here is
+an example file for a system with two bare states and a single channel.
+
+**HEFTFitting.config for $P_{33}$ 2b1c:**
+```
+HEFTFitting.config
+```
+
+• Lines 2 – 7 control the bounds of the parameter search. Currently I have it setup so that the bounds can be individually
+set for each bare mass, and set collectively for each of the other types of parameter: $g_{\alpha}^{B_{0}}$, $\Lambda_{\alpha}^{B_{0}}$, $v_{\alpha\beta}$, $\Lambda_{v,\alpha\beta}$-
+I found that being able to set the bounds for each individual parameter was pretty tedious when I wanted to alter them
+for studies with a lot of parameters, such as the 2b3c odd-parity nucleons which had 23 or so parameters.
+The errors column is currently only used in the old fitting code (`fitScattering.f90`), which allowed for error
+requirements for individual parameters. The newer version (`fitScattering_bobyqa.f90`) instead normalises all
+parameters, and uses a varying error requirement (trust regions) to hone in on the smallest viable error. I ended up
+hard-coding the amount the trust region shrinks by in `fitScattering_bobyqa.f90`, since it doesn’t really need
+to be changed from my experience.
+I used to manually scale the parameters to include bounds since Powell’s old fitting code (`minf.f90`) didn’t allow for
+bounded fits (BOBYQA does). That’s why some of the bounds are set to numbers like 0.0001 instead of 0.0, since my
+scaling implementation didn’t allow for a bound of zero.
+- 
+Line 11 dictates which parameters are free during the fitting process. Here, I’m using a `T` (True) to denote that the
+parameter is varied during fitting, and a `F` (False) to say that the parameter is held fixed. So in this example, I’m
+varying the bare mass and the couplings, but holding the regulator parameters ($\Lambda$) fixed.
+If a parameter is held fixed, it’ll use the value of whichever parameter set `allFits.params` is currently using.
+- 
+The fitting code (`fitScattering_bobyqa.f90`) doesn’t read anything after the previous line. As a result I tend to
+use the space afterwards to store alternative sets of which parameters are fixed, so I can quickly switch between them.
+
+## Constraining the Fit Parameters
+The fitting code I always use now is `fitScattering_bobyqa.f90` (which compiles to `fitBQ.x`). Since this has a
+proper implementation of a bounded parameter search, it is much faster and less likely to get stuck in local minima than the
+old `fitScattering.f90`. In saying that, it is still very easy for the fitting algorithm to get stuck in local minima, so a
+decent chuck of the difficulty in finding a good fit to the scattering data is finding the right initial position (parameter set).
+
+There are a couple of ways to do this. The easiest, and the first way is to use a fit to a similar system as a starting point.
+As an example, when I did the 2b3c odd-parity analysis, I started with the 1b2c parameter set from [arXiv:1512.00140](https://arxiv.org/abs/1512.00140). This
+initial guess didn’t end up being the one that gave me the fit I ended up with, but I still think this is a good place to start in
+general.
+
+What ended up being the most useful for me however was just brute force searching for a good initial guess. I once
+attempted to train a neural net to give an initial guess, and in the process I wrote `trainingInfiniteVol.f90` to
+generate the training data. This program just randomly guesses parameter sets and calculates the $\chi^{2}$ for them. The neural net
+didn’t end up working any better than just picking the best parameter set from the training data, but this program ended up
+being a decent way to get a few good initial guesses by just grabbing the few parameter sets which have the lowest $\chi^{2}$ from
+it. It also uses coarrays to run in parallel, so it doesn’t take too long to let it run over a few million parameter sets and pick
+the best ones as initial guesses for the actual fitting routine.
+
+
+To actually perform the fit, all that is necessary is to set the initial guess in `allFits.params`, and then run `fitBQ.x`.
+When this is finished, currently it prompts the user to save the fit to `allFits.params`. It’ll give a preview of the parameter
+set and $\chi^2$, so if the program got lost in a local minima and ended up garbage this is an easy way to discard the fit.
+
+The time taken for the program to run scales pretty heavily with the number of parameters, so its a good idea to think
+about which parameters can be fixed or set to zero. As an example, you might have a decent idea of what the bare mass
+should be, either from the quark model or lattice QCD, so you could try manually setting and fixing the bare mass and letting
+the other parameters run. You could then do a second fit on this, where you allow the bare mass and other parameters to only
+vary within small bounds, to refine the fit. Its also worth thinking about which couplings can be set to zero and fixed. As
+an example, in the 2b3c odd-parity analysis I set the coupling $g_{K\Lambda}^{N_{1}}$ to zero, since the $K\Lambda$ threshold is fairly far above the
+$N^{\ast}(1535)$, and shouldn’t have any significant contribution to it. Finally, its also sometimes useful to try fixing the regulator
+parameters ($\Lambda$). While the additional degrees of freedom can be useful for the fitting, to speed up the fit it might be worth
+fixing them to a phenomenologically motivated value.
+
+## 8. HEFTInfinite.config
+Having obtained a fit, which should have been inserted into `allFits.params`, we can calculate infinite-volume quantities.
+The config file for this is:
+
+**HEFTInfinite.config for $S_{11}$ 2b3c:**
+```
+HEFTInfinite.config
+```
+
+This config file is pretty minimal, and mostly is just setting up the output for plotting. If `useDataPoints` on line 7
+is set to `True`, it’ll ignore the other settings and set the energy range and number of points based on the scattering data in
+`dataInf.in`. Otherwise, you can manually set which energy range you want to calculate the scattering quantities, and how
+many points to calculate. Usually I’ll leave `useDataPoints` to True so I can see how the fit compares to the data, and
+then set it to False and increase the number of points to make a nice smooth curve for the showing off the plot.
+
+## 9. Infinite-Volume Calculations
+The code for calculating the scattering quantities is found in `infiniteVol.f90`, and compiles to `inf.x`. The parameter
+set which one wishes to use should be set in `allFits.params`. This program solves the scattering equation over a variety
+of energies as set in `HEFTInfinite.config`, and outputs the phase shifts, the inelasticity, and the $T$-matrix values for
+each energy. These are outputted to scattering `fitX.out` and `tmatrix_fitX.out` in the data folder, where the `X`
+will be set to number of the parameter set used in `allFits.params`.
+
+To plot these quantities, I have analysis-specific plotting scripts in each project folder. `PhasevsE.py` will plot the phase
+shift vs energy, and the inelasticity vs energy if there is more than one channel in the analysis. Similarly `TmatvsE.py` will
+plot the $T$-matrix values. These will have to be edited a bit for each project, though they are written to be as automatic and
+general as possible (should automatically have the channel thresholds plotted for example). Example outputs of these scripts
+for the 2b3c $S_{11}$ system are shown in Fig. 1.
+
+[Fig 1](Docs/figs/fig1_phase.png)
+
+
+## 10. Pole Positions
+
+## 11. HEFTFinite.config
+
+## Fitting the Bare Mass Slopes
+
+## Finite-Volume Energy Spectrum
+
+## Other Files
+
+### heft.f90
+All code in this project has `heft.f90` as a dependency. This file contains all global variables required for a HEFT study,
+such as the bare masses, couplings, and potentials.
+
+
+
+
