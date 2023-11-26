@@ -90,6 +90,7 @@ An example of this file for the $S_{11}$ 2b3c (odd-parity nucleons) system is sh
     There are three customisation options here, which describe the functions used for $G_{\alpha}^{B_{0}}(k)$, $V_{\alpha\beta}(k,k')$, and the regulator $u(k,\Lambda)$.
     The labels `A`, `B`, etc. correspond to functions in `heftCode/heft.f90`, with names such as `u_k_A`, `g_k_B`, and `f_k_A`.
     Note that `f_k` represents the separable part of $V_{\alpha\beta}(k,k') = v_{\alpha\beta}\, f_{\alpha}(k)\, f_{\beta}(k')$.
+	If you want to add a potential which is not trivially seperable, such as the Weinberg-Tamozawa potential, you will need to manually add that potential to the section in `heft.f90` beginning with `! Set n_f`. This variable tells the program how to correctly calculate $V_{\alpha\beta}$, as this requires some specific reshapes.
 
 
 ## 4. allFits.params
