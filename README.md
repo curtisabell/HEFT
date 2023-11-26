@@ -95,9 +95,11 @@ An example of this file for the $S_{11}$ 2b3c (odd-parity nucleons) system is sh
 With the general properties of the system of interest set out in \ttt{HEFT.config}, we're able to generate the file which will contain all of the parameter sets for the system.
 These parameters are the bare mass(es) $m_{B_{0}}^{(0)}$, the couplings between bare basis states and two-particle basis states (2-1 couplings) $g_{\alpha}^{B_{0}}$, the regulator parameters for 2-1 interactions $\Lambda_{\alpha}^{B_{0}}$, the couplings between two-particle basis states (2-2 couplings) $v_{\alpha\beta}$, and the regulator parameters for 2-2 interactions $\Lambda_{v,\alpha}$.
 
-<p align="center">
-// **$P_{33}$ 1b1c:** allFits.params
-</p>
+<!-- <p align="center"> -->
+<!-- // **$P_{33}$ 1b1c:** allFits.params -->
+<!-- </p> -->
+
+**$P_{33}$ 1b1c:** allFits.params
 ```
 1      nParam        5
 2      iChoice       1
