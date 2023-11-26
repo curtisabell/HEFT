@@ -129,4 +129,28 @@ These parameters are the bare mass(es) $m_{B_{0}}^{(0)}$, the couplings between 
   The last row is always just a row of zeros, which makes it each to detect the end of file when reading/writing.
   As an example the third `A` corresponds with a dipole regulator, while a `B` in that spot would be a Guassian regulator.
   Note that these are just a note for myself, and do not set what the program uses.
-  The actual set of potentials/regulators are set in `HEFT.config}.
+  The actual set of potentials/regulators are set in `HEFT.config`.
+
+If we are attempting to reproduce a previous study, we'll want to insert the parameters from that study into this file, such as the set shown here on line 6.
+We can then skip to Step todo.
+
+## 5. Scattering Data
+The first thing we need to perform a fit is some scattering data to fit to. Typically, we’ll get this from the SAID Partial Wave
+Analysis [website](https://gwdac.phys.gwu.edu/). This website sometimes has some issues since it’s fairly old, so you may need to try a different browser/OS
+if a link isn’t working, or if the data isn’t displaying properly.
+1. In order to obtain a particular set of $\pi N$ scattering data, on the left-hand side of the website, follow the [Pion-Nucleon](https://gwdac.phys.gwu.edu/analysis/pin_analysis.html)
+link, and then click Partial-Wave Amplitudes.
+2. Here, we’ll want to use the **WI08** solution for both options, which is the most up-to-date data set.
+3. I prefer to use Wcm as the energy variable (centre-of-mass energy), which is the convention we’ve used for any recent
+publications. Older papers tend to use **Tlab** (the kinetic energy of the pion).
+4. For the lower bound in the centre-of-mass frame, we’ll want to use the rest mass of the pion-nucleon system. I don’t
+believe they have any data below 1080 MeV, so that should be a perfectly fine number to put in here. The increment is
+less important since I prefer to use the single-energy solution for fitting, but 10 MeV should be fine here.
+5. The upper bound will depend on the study. At minimum, you’ll want it to be the mass of the resonance(s) you’re
+considering, plus at least half the width of the resonance. This is the minimum to capture the features of the resonance,
+though in practice you may want to go slightly higher. You’ll also want to consider the energies which any channels
+open up that you’re not interested in, and the masses of excited states in the spectrum which you don’t want to study.
+As a couple of examples, in the 1b1c $\Delta(1232)$ study, we stop at 1350 MeV, since this is approximately where the $\pi\Delta$
+channel opens. In the 2b3c S11 study, we stopped at 1750 MeV, since that is enough to encapsulate the $N^{*}(1650)$
+which has a width of approximately 125 MeV, without including too many effects from the $N^{*}(1895)$.
+6. Finally, you’ll want to select the partial wave of interest.
