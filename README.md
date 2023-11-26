@@ -47,6 +47,7 @@ I had the general goal over my PhD of being able to do an entire new HEFT study 
 This goal was achieved to some degree, where a majority of the configuration specific to a system is stored in a file called `HEFT.config`.
 An example of this file for the $S_{11}$ 2b3c (odd-parity nucleons) system is shown here.
 
+**HEFT.config for $S_{11}$ 2b3c:**
 ```
  1  # NStar_2b3c config
  2
@@ -95,7 +96,7 @@ An example of this file for the $S_{11}$ 2b3c (odd-parity nucleons) system is sh
 With the general properties of the system of interest set out in \ttt{HEFT.config}, we're able to generate the file which will contain all of the parameter sets for the system.
 These parameters are the bare mass(es) $m_{B_{0}}^{(0)}$, the couplings between bare basis states and two-particle basis states (2-1 couplings) $g_{\alpha}^{B_{0}}$, the regulator parameters for 2-1 interactions $\Lambda_{\alpha}^{B_{0}}$, the couplings between two-particle basis states (2-2 couplings) $v_{\alpha\beta}$, and the regulator parameters for 2-2 interactions $\Lambda_{v,\alpha}$.
 
-`allFits.params` for **$P_{33}$ 1b1c:**
+**allFits.params for $P_{33}$ 1b1c:**
 ```
 1      nParam        5
 2      iChoice       1
@@ -107,3 +108,25 @@ These parameters are the bare mass(es) $m_{B_{0}}^{(0)}$, the couplings between 
 8      4    1.3850   0.14057   0.8000   -0.03066   0.8000      244.65   AAB
 9      0    0.0000   0.00000   0.0000    0.00000   0.0000        0.00
 ```
+
+-
+  \ttt{nParam} refers to the total number of parameters.
+  For $n_{b}$ bare basis states, and $n_{c}$ scattering channels, considering all five categories of fit parameters gives
+  \begin{equation}
+    n_{\text{param}} = n_{b} + n_{b} n_{c} + n_{b} n_{c} + \frac{1}{2} n_{c}(n_{c}+1) + n_{c} = n_{b} + 2 n_{b} n_{c} + \frac{1}{2} n_{c}(n_{c}+1) + n_{c}\,. \label{eq:nParams}
+  \end{equation}
+-
+  \ttt{iChoice} chooses which parameter set to use (given by the \ttt{n} column)
+-
+  \ttt{paramEnds} denotes which column each parameter category ends on.
+  This is trivial for the 1b1c case, but for the 2b3c case (see \ttt{allFits\_N2b3c.params}) this would be \ttt{2  8  14  20  23}.
+  This refers to $m_{B_{0}}^{(0)}$ ending on column 2, $g_{\alpha}^{B_{0}}$ ending on column 8, $\Lambda_{\alpha}^{B_{0}}$ ending on column 14 etc.
+-
+  For lines 5 through 8, each of the numbered rows are a parameter set, with parameters in the order $m_{B_{0}}^{(0)}$, $g_{\alpha}^{B_{0}}$, $\Lambda_{\alpha}^{B_{0}}$, $v_{\alpha\beta}$, $\Lambda_{v, \alpha}$.
+  Following this is the $\chi^{2}$ for the fit, then any notes about the fit I've added.
+  Usually this is just which set of potentials and regulators that fit corresponds with.
+-
+  The last row is always just a row of zeros, which makes it each to detect the end of file when reading/writing.
+  As an example the third \ttt{A} corresponds with a dipole regulator, while a \ttt{B} in that spot would be a Guassian regulator.
+  Note that these are just a note for myself, and do not set what the program uses.
+  The actual set of potentials/regulators are set in \ttt{HEFT.config}.
