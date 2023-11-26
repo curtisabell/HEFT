@@ -151,6 +151,6 @@ considering, plus at least half the width of the resonance. This is the minimum 
 though in practice you may want to go slightly higher. You’ll also want to consider the energies which any channels
 open up that you’re not interested in, and the masses of excited states in the spectrum which you don’t want to study.
 As a couple of examples, in the 1b1c $\Delta(1232)$ study, we stop at 1350 MeV, since this is approximately where the $\pi\Delta$
-channel opens. In the 2b3c S11 study, we stopped at 1750 MeV, since that is enough to encapsulate the $N^{*}(1650)$
-which has a width of approximately 125 MeV, without including too many effects from the $N^{*}(1895)$.
+channel opens. In the 2b3c S11 study, we stopped at 1750 MeV, since that is enough to encapsulate the $N^{\ast}(1650)$
+which has a width of approximately 125 MeV, without including too many effects from the $N^{\ast}(1895)$.
 6. Finally, you’ll want to select the partial wave of interest.
