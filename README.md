@@ -243,18 +243,27 @@ To plot these quantities, I have analysis-specific plotting scripts in each proj
 shift vs energy, and the inelasticity vs energy if there is more than one channel in the analysis. Similarly `TmatvsE.py` will
 plot the $T$-matrix values. These will have to be edited a bit for each project, though they are written to be as automatic and
 general as possible (should automatically have the channel thresholds plotted for example). Example outputs of these scripts
-for the 2b3c $S_{11}$ system are shown in Fig. 1.
+for the 2b3c $S_{11}$ system are shown in Fig. 1, where from left from right we have the comparison of the HEFT values
+(solid lines) with the scattering data (data points) for the $\pi N$ phase shift, inelasticity, and $T$-matrix values.
 
 ![Fig 1](Docs/figs/fig1_phase.png)
 
 
 ## 10. Pole Positions
 
+
+
 ## 11. HEFTFinite.config
 
-## Fitting the Bare Mass Slopes
 
-## Finite-Volume Energy Spectrum
+
+## 13. Fitting the Bare Mass Slopes
+
+
+
+## 14. Finite-Volume Energy Spectrum
+
+
 
 ## Other Files
 
