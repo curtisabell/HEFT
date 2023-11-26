@@ -110,16 +110,16 @@ These parameters are the bare mass(es) $m_{B_{0}}^{(0)}$, the couplings between 
 ```
 
 -
-  \ttt{nParam} refers to the total number of parameters.
+  `nParam` refers to the total number of parameters.
   For $n_{b}$ bare basis states, and $n_{c}$ scattering channels, considering all five categories of fit parameters gives
-  \begin{equation}
-    n_{\text{param}} = n_{b} + n_{b} n_{c} + n_{b} n_{c} + \frac{1}{2} n_{c}(n_{c}+1) + n_{c} = n_{b} + 2 n_{b} n_{c} + \frac{1}{2} n_{c}(n_{c}+1) + n_{c}\,. \label{eq:nParams}
-  \end{equation}
+
+   $n_{\text{param}} = n_{b} + n_{b} n_{c} + n_{b} n_{c} + \frac{1}{2} n_{c}(n_{c}+1) + n_{c} = n_{b} + 2 n_{b} n_{c} + \frac{1}{2} n_{c}(n_{c}+1) + n_{c}$
+
 -
-  \ttt{iChoice} chooses which parameter set to use (given by the \ttt{n} column)
+  `iChoice` chooses which parameter set to use (given by the `n` column)
 -
-  \ttt{paramEnds} denotes which column each parameter category ends on.
-  This is trivial for the 1b1c case, but for the 2b3c case (see \ttt{allFits\_N2b3c.params}) this would be \ttt{2  8  14  20  23}.
+  `paramEnds} denotes which column each parameter category ends on.
+  This is trivial for the 1b1c case, but for the 2b3c case (see `allFits\_N2b3c.params`) this would be `2  8  14  20  23`.
   This refers to $m_{B_{0}}^{(0)}$ ending on column 2, $g_{\alpha}^{B_{0}}$ ending on column 8, $\Lambda_{\alpha}^{B_{0}}$ ending on column 14 etc.
 -
   For lines 5 through 8, each of the numbered rows are a parameter set, with parameters in the order $m_{B_{0}}^{(0)}$, $g_{\alpha}^{B_{0}}$, $\Lambda_{\alpha}^{B_{0}}$, $v_{\alpha\beta}$, $\Lambda_{v, \alpha}$.
@@ -127,6 +127,6 @@ These parameters are the bare mass(es) $m_{B_{0}}^{(0)}$, the couplings between 
   Usually this is just which set of potentials and regulators that fit corresponds with.
 -
   The last row is always just a row of zeros, which makes it each to detect the end of file when reading/writing.
-  As an example the third \ttt{A} corresponds with a dipole regulator, while a \ttt{B} in that spot would be a Guassian regulator.
+  As an example the third `A` corresponds with a dipole regulator, while a `B` in that spot would be a Guassian regulator.
   Note that these are just a note for myself, and do not set what the program uses.
-  The actual set of potentials/regulators are set in \ttt{HEFT.config}.
+  The actual set of potentials/regulators are set in `HEFT.config}.
