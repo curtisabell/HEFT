@@ -30,7 +30,7 @@ To do the initial setup manually, go to step 2.
 	The usual case is that the lattice size $L$ is varying with $m_{\pi}^{2}$, so I run `lqcdFin.x`.
 	If I want to keep $L$ constant and just vary $m_{\pi}^{2}$, I run `mpiFin.x`.
 15. To plot the spectrum, I have a plot script called `EvMpi.py`.
-	Typically I'll have a few of these for different sets of lattice data, such as in the odd-parity nucleon case where I have `EvMpi\_3fm.py`, `EvMpi\_2fm.py`, and `EvMpi\_D200.py`.
+	Typically I'll have a few of these for different sets of lattice data, such as in the odd-parity nucleon case where I have `EvMpi_3fm.py`, `EvMpi_2fm.py`, and `EvMpi_D200.py`.
 16. To plot the eigenvectors, I have a script called `EvecvMpi.py`.
 17. **Extra:** There are also a few other things I might be interested in, such as comparing multiple parameter sets, such as in the $\Delta(1232)$ regularisation and multiple bare state papers.
   I can search for poles with a varying set of parameters with `multiFitPoles.x`.
@@ -42,7 +42,7 @@ todo
 ## 3. HEFT.config
 I had the general goal over my PhD of being able to do an entire new HEFT study having to change as little as possible in the actual code.
 This goal was achieved to some degree, where a majority of the configuration specific to a system is stored in a file called `HEFT.config`.
-An example of this file for the $S_{11}$ `2b3c` (odd-parity nucleons) system is shown here.
+An example of this file for the $S_{11}$ 2b3c (odd-parity nucleons) system is shown here.
 
 ```
  1  # NStar_2b3c config
@@ -66,3 +66,23 @@ An example of this file for the $S_{11}$ `2b3c` (odd-parity nucleons) system is 
 19  # g (2-1 potential), v (2-2),   u (regulator)
 20  B                    B          A
 ```
+1.
+    Lines 3 and 4 simply denote how many two-particle channels are present, and how many bare basis states are present in the system.
+2.
+    Lines 7 through 8 describe each two-particle channel in the system.
+    The details of each hadron are stored in `heftCode/particles.in}, such as the mass, and the mass slope (how it varies in $m_{\pi}^{2}$).
+    The partial wave label tells the program which partial wave the channel is interacting in, and is used for things such as choosing whether to start at $k=0$ or $k=1$ in a finite-volume, or having factors of $k^{l}$ for angular momentum $l$ in the potentials.
+3.
+    Line 11 tells the program which of those channel is on-shell in the scattering process (starting from 1).
+    Generally this is going to be the $ \pi N $ channel, though in the $\Lambda^{*}(1405)$ case it would be a $\bar{K}N$ channel.
+4.
+    Lines 12 and 13 tell the program which file to use for the particle masses.
+    By default, it uses `heftCode/particles.in`.
+    When I'm doing a finite-volume study where I want to have slightly larger masses at the physical point, I set `useCustomMasses` to `T`, and give the file name of the new particles file to use.
+5.
+    Lines 16 and 17 are just the labels I give to each bare state, which is helpful for printing/writing data to files.
+6.
+    Line 20 is where I set which potential is used for each interaction.
+    There are three customisation options here, which describe the functions used for $G_{\alpha}^{B_{0}}(k)$, $V_{\alpha\beta}(k,k')$, and the regulator $u(k,\Lambda)$.
+    The labels `A`, `B`, etc. correspond to functions in `heftCode/heft.f90`, with names such as `u_k_A`, `g_k_B`, and `f_k_A`.
+    Note that `f_k` represents the separable part of $V_{\alpha\beta}(k,k') = v_{\alpha\beta}\, f_{\alpha}(k)\, f_{\beta}(k')$.
