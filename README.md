@@ -36,9 +36,29 @@ To do the initial setup manually, go to step 2.
   I can search for poles with a varying set of parameters with \ttt{multiFitPoles.x}.
   I calculate the finite-volume spectrum for a varying set of parameters with \ttt{multiFitFin.x}.
 
-
 ## 1. newProject.py
-test
+todo
 
 ## 3. HEFT.config
-test
+here.
+'   1  # NStar_2b3c config
+   2
+   3  n_channels   3
+   4  n_bare       2
+   5
+   6  # Channel                   partialWave
+   7  pion          Nucleon       S
+   8  eta           Nucleon       S
+   9  Kaon          Lambda        S
+  10
+  11  OnshellChannel    1
+  12  useCustomMasses   F
+  13  particles_3fm.in
+  14
+  15  # Bare state labels
+  16  N1
+  17  N2
+  18
+  19  # g (2-1 potential), v (2-2),   u (regulator)
+  20  B                    B          A'
+end
