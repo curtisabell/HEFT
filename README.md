@@ -118,8 +118,8 @@ These parameters are the bare mass(es) $m_{B_{0}}^{(0)}$, the couplings between 
 -
   `iChoice` chooses which parameter set to use (given by the `n` column)
 -
-  `paramEnds} denotes which column each parameter category ends on.
-  This is trivial for the 1b1c case, but for the 2b3c case (see `allFits\_N2b3c.params`) this would be `2  8  14  20  23`.
+  `paramEnds` denotes which column each parameter category ends on.
+  This is trivial for the 1b1c case, but for the 2b3c case (see `allFits_N2b3c.params`) this would be `2  8  14  20  23`.
   This refers to $m_{B_{0}}^{(0)}$ ending on column 2, $g_{\alpha}^{B_{0}}$ ending on column 8, $\Lambda_{\alpha}^{B_{0}}$ ending on column 14 etc.
 -
   For lines 5 through 8, each of the numbered rows are a parameter set, with parameters in the order $m_{B_{0}}^{(0)}$, $g_{\alpha}^{B_{0}}$, $\Lambda_{\alpha}^{B_{0}}$, $v_{\alpha\beta}$, $\Lambda_{v, \alpha}$.
