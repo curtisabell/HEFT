@@ -3,7 +3,7 @@ import subprocess
 from os import walk
 # import sys
 
-# sys.path.append('../heftCode')
+# sys.path.append('../src')
 # import readHEFTConfig
 
 
@@ -170,9 +170,9 @@ def main():
     print(f'Creating directory {dirName}')
     proc = subprocess.run(f'mkdir {dirName}', shell=True)
     print('Copying these files:')
-    proc = subprocess.run(f'ls Template/*', shell=True)
-    proc = subprocess.run(f'cp Template/* {dirName}/', shell=True)
-    proc = subprocess.run(f'ln heftCode/makefile {dirName}/makefile', shell=True)
+    proc = subprocess.run(f'ls Templates/*', shell=True)
+    proc = subprocess.run(f'cp Templates/* {dirName}/', shell=True)
+    proc = subprocess.run(f'ln src/makefile {dirName}/makefile', shell=True)
     proc = subprocess.run(f'mkdir {dirName}/figs', shell=True)
     proc = subprocess.run(f'mkdir {dirName}/data', shell=True)
     print()
