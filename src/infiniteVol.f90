@@ -3,8 +3,6 @@ program infiniteVol
     use numFort
     use heft
     use SMatrix
-    use stdlib_string_type
-    use stdlib_strings
     implicit none
 
     ! Data input
@@ -32,11 +30,11 @@ program infiniteVol
 
     integer :: file_scattering, file_crossSec
     integer :: file_tmatrix
-    type(string_type) :: fileName_scattering, fileName_crossSec, fileName_tmatrix
+    character(len=128) :: fileName_scattering, fileName_crossSec, fileName_tmatrix
 
     logical :: usePseudoData = .false.
     real(DP) :: pseudo_uncertainty
-    type(string_type) :: fileName_data
+    character(len=128) :: fileName_data
 
     call initialiseHEFT()
     call printCurrentParameters(iParamChoice)
@@ -45,11 +43,11 @@ program infiniteVol
     ! Set up file outputs
     if (IamRoot) then
         fileName_scattering = 'data/scattering_fit' &
-            & // to_string(iParamChoice) // '.out'
+            & // trim(adjustl(int2str(iParamChoice))) // '.out'
         fileName_crossSec = 'data/crossSection_fit' &
-            & // to_string(iParamChoice) // '.out'
+            & // trim(adjustl(int2str(iParamChoice))) // '.out'
         fileName_tmatrix = 'data/tmatrix_fit' &
-            & // to_string(iParamChoice) // '.out'
+            & // trim(adjustl(int2str(iParamChoice))) // '.out'
 
         if (usePseudoData) then
             fileName_data = 'dataInf_pseudo.in'
@@ -71,7 +69,7 @@ program infiniteVol
         ! -------------------------Read data points-------------------------
         ! ------------------------------------------------------------------
         if (useDataPoints) then
-            open(142, file=char(fileName_data), action='read')
+            open(142, file=fileName_data, action='read')
             read(142,*) nPoints_inf
 
             ! Allocate the arrays
@@ -198,9 +196,9 @@ program infiniteVol
         where (crossSec(:,:,:).ne.crossSec(:,:,:)) crossSec(:,:,:) = -1.0_DP
 
         ! ------------------Write phase and cross-sec to file-----------------
-        open( 101, file=char(fileName_scattering), action='write' )
-        open( 102, file=char(fileName_crossSec), action='write' )
-        open( 103, file=char(fileName_tmatrix), action='write' )
+        open( 101, file=fileName_scattering, action='write' )
+        open( 102, file=fileName_crossSec, action='write' )
+        open( 103, file=fileName_tmatrix, action='write' )
 
         write(101,'(8a14)') 'E (GeV)', ch_labels(:), 'Inelasticity'
         write(102,'(8a14)') 'E (GeV)', ch_labels(:), 'Cross Section'

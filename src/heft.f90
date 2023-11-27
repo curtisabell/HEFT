@@ -110,7 +110,7 @@ module heft
 
     integer :: unit_paramOutput = 201
     character(len=128) :: fileName_paramOutput
-    character(len=128) :: fileName_particles = '../heftCode/particles.in'
+    character(len=128) :: fileName_particles = '../src/particles.in'
 
     ! Pole search variables
     complex(DP) :: E_pole
@@ -311,7 +311,7 @@ contains
                 end if
             else
                 fileName = fileName_particles
-                ! fileName = '../heftCode/particles.in'
+                ! fileName = '../src/particles.in'
             end if
             open(file_particles, file=fileName, action='read')
             read(file_particles, *) string, nParticles
