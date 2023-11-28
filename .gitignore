@@ -6,3 +6,4 @@
 *.png
 *.jpg
 !Docs/figs/*.png
+__pycache__

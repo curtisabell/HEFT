@@ -44,15 +44,24 @@ class HEFTConfig:
     def n_bare(self, value):
         self._n_bare = value
 
+    @property
+    def projectName(self):
+        return self._projectName
+    @projectName.setter
+    def projectName(self, value):
+        self._projectName = value
+
     def readHEFTConfigFile(self):
         with open('HEFT.config', 'r') as f:
-            f.readline()
+            # Read n_b and n_c info for this system
+            self.projectName = f.readline().split()[1]
             f.readline()
             line = f.readline()
             self.n_ch = int(line[-3:])
             line = f.readline()
             self.n_bare = int(line[-3:])
 
+            # Read info about the channel(s)
             f.readline()
             f.readline()
             self.chs = []
@@ -67,6 +76,7 @@ class HEFTConfig:
             f.readline()
             f.readline()
 
+            # Read info about the bare state(s)
             for i_bare in range(self.n_bare):
                 line = f.readline()
                 self.bareStates.append(line.strip())
