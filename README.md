@@ -3,7 +3,16 @@ This file is intended to provide an overview of how I would use this code to per
 I will provide a brief overview of my typical workflow, with more detail provided for each step afterwards.
 
 ## Folder Structure
-The folder `src` contains all of TODO
+The folder `src` contains all of the Fortran source files, as well as `readHEFTConfig.py` which passes infomation about the HEFT system to plot scripts.
+This folder also contains the main `makefile`.
+
+Each project folder will have a link to the makefile, which makes the executables in the project folder.
+This way you can work on a single project by just working within the project folder, without any cross-contamination from other projects.
+As every project is using the same Fortran source however, we can be confident that the code which works for one system will also work for another.
+
+A cartoon of this folder structure is show below.
+
+<img src="Docs/figs/folders.png" alt="image" width="450" height="auto">
 
 # Work Flow
 1. Run `newProject.py` to easily set up all the config files, and skip to step 4.
@@ -414,16 +423,25 @@ The base plot script for this is `EvMpi.py`.
 This is able to plot the HEFT basis states, and energy eigenvalues.
 Typically however, I'll have several variations of this script specific to each set of lattice data, since they tend to require specific formatting.
 An example of this is the the odd-parity nucleon case where I have `EvMpi_3fm.py`, `EvMpi_2fm.py`, and `EvMpi_D200.py`, which compare the HEFT eigenstates to three different sets of lattice ensembles.
+For the $\Delta$ study, I was using a script called `EvMpi_pts.py` to plot with the lattice data.
 
 I've tried to write this to be fairly general and straightforward, but it'll require a bit of altering to the specifics of an analysis, such as the labels, the lattice data, and the general formatting.
 I've tried to have the ability to turn off each element of the plot (basis states, eigenvalues, eigenvector highlighting etc.) using booleans, such as `doPlotBare` to highlight the states dominated by bare basis state contributions, or `doPlotBasis` to enable/disable the basis state plotting.
 
 
 ## 16. Eigenvector plotting
+The script I've been using for plotting the Hamiltonian eigenvectors against $m_{\pi}^{2}$ is called `EvecvMpi.py`.
+Currently its setup so that it'll plot the eigenvectors of whichever program was last run out of `mpiFin.x` and `lqcdFin.x`.
 
+I also have a script named `EvecvParam.py` which I used to plot the eigenvectors against a varying parameter.
+This was mostly used for when I was varying $\Lambda$ in the $\Delta$ study.
 
 
 ## 17. Contaimination Function Plotting
+Currently obtaining the contamination functions isn't very generalised, since I did that right at the end of my PhD.
+But there is a script called `plot_contamination.py` which works for the odd-parity nucleons, and should only need a few modifications to work with other systems.
+
+TODO: `lqcdFiniteVol.f90` needs a bit of generalisation to generate the contamination functions, currently changing between the different ways of doing the contaminations (as I considered in the odd-parity paper) is hardcoded into the source.
 
 
 ## Other Files
@@ -433,3 +451,6 @@ I've tried to have the ability to turn off each element of the plot (basis state
 ### heft.f90
 All code in this project has `heft.f90` as a dependency. This file contains all global variables required for a HEFT study,
 such as the bare masses, couplings, and potentials.
+This does all of the initialisations, reading config files, setting the parameters etc.
+
+This also stores all of the functions for the potentials and form factors, so any new potentials/form factors should be added into this file.
