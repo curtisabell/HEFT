@@ -42,7 +42,10 @@ To do the initial setup manually, go to step 2.
   I calculate the finite-volume spectrum for a varying set of parameters with `multiFitFin.x`.
 
 ## 1. newProject.py
-todo
+Run this script to create a new project, and then skip to step 4.
+Otherwise, go to step 2 of the work flow.
+
+TODO: check this script is still working after the changes I've made, then write this section.
 
 ## 3. HEFT.config
 I had the general goal over my PhD of being able to do an entire new HEFT study having to change as little as possible in the actual code.
