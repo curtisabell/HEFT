@@ -261,7 +261,7 @@ program fitBareMassSlope
 
         if (.not.testMode .and. saveResult) then
             ! Write slopes for this fit to file
-            open(101, file='data/bare_mass_'//to_string(bareSlopeFitOrder)//'slope_' &
+            open(101, file='data/bare_mass_'//trim(int2str(bareSlopeFitOrder))//'slope_' &
                 & //trim(fileNameSuffix)//'.fit', action='write')
             write(101,'(a)') ' Bare Mass Slopes,  ' // fileNameSuffix
             do ii = 1, n_bare

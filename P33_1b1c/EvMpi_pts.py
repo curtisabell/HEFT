@@ -8,7 +8,7 @@ from matplotlib import rc
 import math
 import sys
 
-sys.path.append('../heftCode')
+sys.path.append('../src')
 import readHEFTConfig
 
 HEFT = readHEFTConfig.HEFTConfig()
@@ -93,13 +93,6 @@ m_pi_err    = massData[:,1]
 m_pi2_err   = m_pi_err * 2.0 * m_pi
 m_Delta     = massData[:,2]
 m_Delta_err = massData[:,3]
-
-# a_fm        = massData[:,0] # fm
-# m_pi        = massData[:,1] / a_fm * hbarc
-# m_pi_err    = massData[:,2] / a_fm * hbarc
-# m_pi2_err   = m_pi_err * 2.0 * m_pi
-# m_Delta     = massData[:,3] / a_fm * hbarc
-# m_Delta_err = massData[:,4] / a_fm * hbarc
 
 # Plot lattice qcd data
 pypl.errorbar(m_pi**2, m_Delta, xerr=m_pi2_err, yerr=m_Delta_err,
