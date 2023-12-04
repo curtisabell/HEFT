@@ -22,6 +22,8 @@ OBJS = kinds.o \
 
 FIN_OBJS = kinds.o \
            heft.o \
+           minf.o \
+           quadpack.o \
            NumFort.o \
 	   hamiltonian.o
 
@@ -37,26 +39,6 @@ INF_OBJS = kinds.o \
 #  Pattern rule(s)
 %.o : ../src/%.f90
 	$(COMPILER) $(CFLAGS) -c $<
-
-
-#  targets
-# NumFort.o : ../src/NumFort.f90
-# 	$(COMPILER) $(CFLAGS) -c $<
-
-# minf.o : ../src/minf.f90
-# 	$(COMPILER) $(CFLAGS) -c $<
-
-# quadpack.o : ../src/quadpack.f90
-# 	$(COMPILER) $(CFLAGS) -c $<
-
-# hamiltonian.o : ../src/hamiltonian.f90
-# 	$(COMPILER) $(CFLAGS) -c $<
-
-# SMatrix.o : ../src/SMatrix.f90
-# 	$(COMPILER) $(CFLAGS) -c $<
-
-# bobyqa_module.o : ../src/bobyqa_module.f90
-# 	$(COMPILER) $(CFLAGS) -c $<
 
 co_random_numbers.o : ../src/co_random_numbers.f90
 	$(COMPILER) $(CACFLAGS) -c $<

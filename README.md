@@ -390,7 +390,7 @@ Using `slopeFitMasses.data` as described in Sec. 13, and the $m_{\pi}$ limits se
 The lattice size is set so that it is constant below the smallest pion mass and above the largest pion mass, and is linearly interpolated between each lattice QCD point.
 An illustration of this for the $S_{11}$ lattice data near 3 fm is shown below.
 
-![Fig 3](Docs/figs/fig3.png)
+<img src="Docs/figs/fig3.png" alt="image" width="450" height="auto">
 
 Running `lqcdFin.x` will produce several output files.
 For a parameter set `X`, the basis states at every pion mass are found in `data/H0_eigenvalues_lqcd_fitX.out`, the finite-volume eigenvalues are found in `data/H_eigenvalues_lqcd_fitX.out`, and each set of eigenvectors are found in `data/H_eigenvectors2_lqcd_fitX.out`.
