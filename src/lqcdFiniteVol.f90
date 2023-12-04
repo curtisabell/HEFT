@@ -4,7 +4,7 @@
 !    be a k=0 state in D wave which should be forbidden
 ! 2. Correlation function stuff needs to be generalised better,
 !    really should have some higher rank object for alpha instead
-!    of alpha1, beta2, etc.
+!    of alpha1, beta2, etc. Should maybe even be in its own program
 program lqcdFiniteVol
     use kinds
     use numFort
@@ -324,7 +324,9 @@ program lqcdFiniteVol
         ! for points outside the bounds of the lQCD points, keep lattice size constant
         where(m_pi2_array(:) .lt. lqcd_m_pi(1)**2) L_array(:) = lqcd_L(1)
         where(m_pi2_array(:) .ge. lqcd_m_pi(nKappa)**2) L_array(:) = lqcd_L(nKappa)
+
     end if
+
     call co_broadcast(L_array, 1)
 
     allocate(t(nt)[*], Ct(nt)[*], Gt(nt)[*])

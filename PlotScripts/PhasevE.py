@@ -2,17 +2,17 @@
 import numpy as np
 from pylab import *
 import matplotlib.style
-import matplotlib.pyplot as pypl
+import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib import rc
 import math
 import sys
 
-pypl.style.use('classic')
-pypl.rcParams['axes.formatter.useoffset'] = False
-pypl.rc('font', size=18, **{'family': 'serif', 'serif': ['Computer Modern']})
-pypl.rc('text', usetex=True)
-fig, ax = pypl.subplots()
+plt.style.use('classic')
+plt.rcParams['axes.formatter.useoffset'] = False
+plt.rc('font', size=18, **{'family': 'serif', 'serif': ['Computer Modern']})
+plt.rc('text', usetex=True)
+fig, ax = plt.subplots()
 
 sys.path.append('../src')
 import readHEFTConfig
@@ -68,80 +68,80 @@ phase = output[:,1]
 eta = output[:,n_ch+1]
 
 # -------------------------Plot Phase Shift-------------------------
-pypl.plot(E, phase, color='blue', linestyle='-', linewidth='1.7')
-pypl.errorbar(Edata, phaseData, yerr=phaseErrorData, fmt='.',
+plt.plot(E, phase, color='blue', linestyle='-', linewidth='1.7')
+plt.errorbar(Edata, phaseData, yerr=phaseErrorData, fmt='.',
               ecolor='black', color='black', capsize=2, zorder=5.0)
 
 # # eta-N threshold
 # thres = 0.5479+0.9385
-# pypl.plot([thres, thres], [-360, 360]
+# plt.plot([thres, thres], [-360, 360]
 #           , color='black', label='_nolegend_', linestyle='dashed')
 
 # # K-Lambda threshold
 # thres = 0.4937+1.116
-# pypl.plot([thres, thres], [-360, 360]
+# plt.plot([thres, thres], [-360, 360]
 #           , color='black', label='_nolegend_', linestyle='dashed')
 
-pypl.axis( [min(E), max(E), min([0, min(phase)]), max(phase)*1.05] )
-pypl.xlabel( 'E (GeV)' )
-pypl.ylabel( '$\delta_{\pi N}$' )
+plt.axis( [min(E), max(E), min([0, min(phase)]), max(phase)*1.05] )
+plt.xlabel( 'E (GeV)' )
+plt.ylabel( '$\delta_{\pi N}$' )
 Lam = 0.8
-pypl.title(projName.replace('_',' '))
+plt.title(projName.replace('_',' '))
 
 # xtickloc = [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7]
-# pypl.xticks(xtickloc)
+# plt.xticks(xtickloc)
 ax.xaxis.set_minor_locator(AutoMinorLocator())
 ax.yaxis.set_minor_locator(AutoMinorLocator())
-pypl.tick_params(axis='y', which='major', width=1, length=10, color='black')
-pypl.tick_params(axis='x', which='major', width=1, length=10, color='black')
-pypl.tick_params(axis='y', which='minor', width=1, length=4,  color='black', direction='in', bottom='on')
-pypl.tick_params(axis='x', which='minor', width=1, length=4,  color='black', direction='in', top='on')
+plt.tick_params(axis='y', which='major', width=1, length=10, color='black')
+plt.tick_params(axis='x', which='major', width=1, length=10, color='black')
+plt.tick_params(axis='y', which='minor', width=1, length=4,  color='black', direction='in', bottom='on')
+plt.tick_params(axis='x', which='minor', width=1, length=4,  color='black', direction='in', top='on')
 
 outfile = f'figs/{n_bare}b{n_ch}c_phaseShift_fit{fitNum}.{figType}'
 if saveFigs:
     savefig(outfile, bbox_inches='tight')
 else:
     # print()
-    pypl.show()
+    plt.show()
 
 if (n_ch>1):
     # -------------------------Plot Inelasticity------------------------
     ax.clear()
-    pypl.style.use('classic')
-    pypl.rcParams['axes.formatter.useoffset'] = False
-    pypl.rc('font', size=18, **{'family': 'serif', 'serif': ['Computer Modern']})
-    pypl.rc('text', usetex=True)
-    fig, ax = pypl.subplots()
+    plt.style.use('classic')
+    plt.rcParams['axes.formatter.useoffset'] = False
+    plt.rc('font', size=18, **{'family': 'serif', 'serif': ['Computer Modern']})
+    plt.rc('text', usetex=True)
+    fig, ax = plt.subplots()
 
     # # Plot thresholds
     # thres = 0.5479+0.9385 # 1.4864
-    # pypl.plot([thres, thres], [min(etaData)*0.8, 1.05]
+    # plt.plot([thres, thres], [min(etaData)*0.8, 1.05]
     #           , color='black', label='_nolegend_', linestyle='dashed')
 
     # thres = 0.4937+1.116 # 1.6097
-    # pypl.plot([thres, thres], [min(etaData)*0.8, 1.05]
+    # plt.plot([thres, thres], [min(etaData)*0.8, 1.05]
     #           , color='black', label='_nolegend_', linestyle='dashed')
 
     # Plot data
-    pypl.errorbar(Edata, etaData, yerr=etaErrorData, fmt='.',
+    plt.errorbar(Edata, etaData, yerr=etaErrorData, fmt='.',
                   ecolor='black', color='black', capsize=2)
-    pypl.plot(E, eta, color='blue', linestyle='-', linewidth='1.7')
-    pypl.ylabel( '$\eta$' )
-    pypl.xlabel( '$E$ (GeV)' )
-    pypl.title(projName.replace('_',' '))
-    pypl.axis( [min(E), max(E), min(etaData)*0.8, 1.05] )
+    plt.plot(E, eta, color='blue', linestyle='-', linewidth='1.7')
+    plt.ylabel( '$\eta$' )
+    plt.xlabel( '$E$ (GeV)' )
+    plt.title(projName.replace('_',' '))
+    plt.axis( [min(E), max(E), min(etaData)*0.8, 1.05] )
 
     # xtickloc = [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7]
-    # pypl.xticks(xtickloc)
+    # plt.xticks(xtickloc)
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
-    pypl.tick_params(axis='y', which='major', width=1, length=10, color='black')
-    pypl.tick_params(axis='x', which='major', width=1, length=10, color='black')
-    pypl.tick_params(axis='y', which='minor', width=1, length=4,  color='black', direction='in', bottom='on')
-    pypl.tick_params(axis='x', which='minor', width=1, length=4,  color='black', direction='in', top='on')
+    plt.tick_params(axis='y', which='major', width=1, length=10, color='black')
+    plt.tick_params(axis='x', which='major', width=1, length=10, color='black')
+    plt.tick_params(axis='y', which='minor', width=1, length=4,  color='black', direction='in', bottom='on')
+    plt.tick_params(axis='x', which='minor', width=1, length=4,  color='black', direction='in', top='on')
 
     outfile = f'figs/{int(n_bare)}b{int(n_ch)}c_eta_fit{fitNum}.{figType}'
     if saveFigs:
         savefig(outfile, bbox_inches='tight')
     else:
-        pypl.show()
+        plt.show()

@@ -3,7 +3,7 @@ This file is intended to provide an overview of how I would use this code to per
 I will provide a brief overview of my typical workflow, with more detail provided for each step afterwards.
 
 ## Folder Structure
-The folder `src` contains all of todo
+The folder `src` contains all of TODO
 
 # Work Flow
 1. Run `newProject.py` to easily set up all the config files, and skip to step 4.
@@ -29,13 +29,15 @@ To do the initial setup manually, go to step 2.
 	I store this in a file called `slopeFitMasses.data`.
 13. To fit the bare mass slope(s), I make and run `fitBare.x`.
 	The config file `HEFTFinite.config` contains the guess for the bare slope, and the order of the bare mass extrapolation.
-14. To calculate the finite-volume energy spectrum, there are two options.
+14. To calculate the finite-volume energy spectrum, there are three options.
 	The usual case is that the lattice size $L$ is varying with $m_{\pi}^{2}$, so I run `lqcdFin.x`.
 	If I want to keep $L$ constant and just vary $m_{\pi}^{2}$, I run `mpiFin.x`.
+	If I want to keep the pion mass fixed and vary $L$,
 15. To plot the spectrum, I have a plot script called `EvMpi.py`.
 	Typically I'll have a few of these for different sets of lattice data, such as in the odd-parity nucleon case where I have `EvMpi_3fm.py`, `EvMpi_2fm.py`, and `EvMpi_D200.py`.
 16. To plot the eigenvectors, I have a script called `EvecvMpi.py`.
-17. **Extra:** There are also a few other things I might be interested in, such as comparing multiple parameter sets, such as in the $\Delta(1232)$ regularisation and multiple bare state papers.
+17. TODO: Contaimination function plotting
+18. **Extra:** There are also a few other things I might be interested in, such as comparing multiple parameter sets, such as in the $\Delta(1232)$ regularisation and multiple bare state papers.
   I can search for poles with a varying set of parameters with `multiFitPoles.x`.
   I calculate the finite-volume spectrum for a varying set of parameters with `multiFitFin.x`.
 
@@ -270,22 +272,160 @@ for the 2b3c $S_{11}$ system are shown in Fig. 1, where from left from right we 
 
 
 ## 10. Pole Positions
+Poles in the $$S-matrix are calculated in `poleSearch.f90`, which compiles to `poles.x`.
+Currently, this performs a grid search over 25 initial positions, outputting the complex energy which minimises the $S$-matrix for each initial guess.
 
+TODO: Make pole search parameters read from some HEFTPoles.config, instead of hardcoding. Use a config file along the lines of
+```
+# Config file for HEFT pole searching
+
+# pole rotation angles
+piN    -70
+etaN   -70
+KLam   -70
+
+# pole guesses
+nGuess  2
+1500   -50
+1650   -65
+
+# search grid
+gridMin     1.2    -0.01
+gridMax     2.0    -0.1
+points      25
+```
 
 
 ## 11. HEFTFinite.config
+All config options for finite-volume HEFT are stored in `HEFTFinite.config`, an example of which is shown below.
 
+**HEFTFinite.config for $S_{11}$ 2b3c:**
+```
+   1  # Config file for finite volume HEFT
+   2
+   3  # Pion mass
+   4  m_pi   0.1385
+   5
+   6  # Lattice volume varying
+   7  L_min      2.0
+   8  L_max      8.0
+   9  L_points   128
+  10
+  11  # Pion mass varying
+  12  m_pi_min       0.05
+  13  m_pi_max       0.64
+  14  m_pi_points    256
+  15  L_m_pi         2.9856
+  16  useFitSlope    T
+  17  slopeOrder     1
+  18  defMassSlope   0.96   -0.1
+  19
+  20  # Parameter varying
+  21  L_renorm     2.9856
+```
+
+- Line 4 sets the physical pion mass
+- Lines 7 - 9 are for when the lattice size is varied, but the pion mass is kept constant, performed by `finiteVol.f90`.
+Typically I find 2 fm - 8 fm to be an interesting spread, though typically we're more interested in varying the pion mass since this allows for comparison with lattice QCD.
+- Lines 12 - 14 set the extent of the varying pion mass, performed in `mpiFiniteVol.f90`.
+In a typical analysis these values will be squared, so when comparing to PACS-CS masses, I'll usually set these extents to something like 0.05 and 0.64, since this results in a good spectrum over roughly $0 < m_{\pi}^2 < 0.4$ Gev^2.
+- Line 15 sets the size of the lattice used for the varying pion mass analysis.
+Usually I'll just have this set to approximately 3 fm for a quick PACS-CS comparison.
+For a proper analysis, instead of this value I'll have both a varying pion mass and a varying lattice size, performed by `lqcdFiniteVol.f90`.
+- `useFitSlope` controls whether we use the default bare mass slope set on line 18 by `defMassSlope`, or if we use a bare mass slope fit to a specific parameter set, as described in Step 13.
+- `slopeOrder` controls the polynomial order of the bare mass extrapolation beyond the physical point.
+For example, a slope order of 1 will give $m_{B_{0}} = m_{B_{0}}^{(0)} + \alpha_{B_{0}}\, m_{\pi}^{2}$, while a slope order of 2 will add a $\alpha_{2,B_{0}}\, m_{\pi}^{4}$ term.
+- The parameters given by `defMassSlope` are the $\alpha$ parameters in the bare mass expansion.
+In this example we would therefore have $\alpha_{B_{0}} = 0.96$ GeV${}^{-1}$, and $\alpha_{2,B_{0}} = -0.1$ GeV${}^{-3}$.
+- `L_renorm` is on line 21 is fairly niche, and sets the lattice size used when we perform finite-volume analysis for a varying parameter set, as performed in the $\Delta(1232)$ analysis.
 
 
 ## 13. Fitting the Bare Mass Slopes
+Typically, for each parameter set used from `allFits.params` we'll want a unique set of $\alpha$ parameters for the bare mass slopes.
+To find these, we use `fitBareMassSlope.f90`, which compiles to `fitBare.x`.
+This program takes the parameter set selected in `allFits.params`, and attempts to fit the bare mass slope(s) to lattice QCD data.
+This data should be stored in `slopeFitMasses.data`, an example of which is shown below
 
+**slopeFitMasses.data for $S_{11}$ 2b3c:**
+```
+nPoints    5
+L          3.0
+sites      32
+a        m_pi     m      dm
+0.0933	 0.169    1.49   0.12
+0.0950	 0.280    1.56   0.05
+0.0961	 0.391    1.71   0.03
+0.10086  0.515    1.78   0.05
+0.1022   0.623    1.90   0.04
+a        m_pi     m      dm
+0.0933	 0.169    1.55   0.08
+0.0950	 0.280    1.75   0.09
+0.0961	 0.391    1.77   0.03
+0.10086  0.515    1.82   0.02
+0.1022   0.623    1.95   0.02
+```
+
+For a system with $n_b$ bare states, we require lattice QCD data with the same number of masses for each pion mass, as shown in this example for a 2b3c system.
+In this example, we are using the PACS-CS ensembles, and therefore five pion masses, and two masses at each point obtained from a $32^3 \times 64$ lattice.
+As a result, we set `nPoints` to 5, and `nSites` to 32.
+This allows us to calulate the lattice size corresponding to each pion mass.
+
+`fitBare.x` will then attempt to find the bare mass slope(s) which best describe the lQCD data, by minimising a $\chi^2$ between the lQCD data, and HEFT finite-volume eigenvalues.
+The eigenvalue chosen for the $\chi^2$ calculation is the eigenstate with the largest eigenvector component corresponding with each bare basis state.
+In other words, using this example the eigenvalues highlighted in solid red and blue at each PACS-CS point shown below.
+
+![Fig 2](Docs/figs/fig2.png)
+
+After fitting the bare mass slope(s), the slopes will be saved in `data/bare_mass_Xslope_fitY.fit`, where `X` refers to the slope order, and `Y` refers to the parameter set from `allFits.params`.
 
 
 ## 14. Finite-Volume Energy Spectrum
+### 14.1. Varying $m_{\pi}^2$ and $L$
+For a typical analysis, you'll want to be varying both $m_{\pi}^{2}$ and $L$ in order to properly compare to lattice QCD results.
+The code for this process is found in `lqcdFiniteVol.f90`, and compiles to `lqcdFin.x`.
+Using `slopeFitMasses.data` as described in Sec. 13, and the $m_{\pi}$ limits set in `HEFTFinite.config`, we calculate the finite-volume eigenvalues and eigenvectors at each $(m_{\pi}^{2}, L)$ pair.
+The lattice size is set so that it is constant below the smallest pion mass and above the largest pion mass, and is linearly interpolated between each lattice QCD point.
+An illustration of this for the $S_{11}$ lattice data near 3 fm is shown below.
 
+![Fig 3](Docs/figs/fig3.png)
+
+Running `lqcdFin.x` will produce several output files.
+For a parameter set `X`, the basis states at every pion mass are found in `data/H0_eigenvalues_lqcd_fitX.out`, the finite-volume eigenvalues are found in `data/H_eigenvalues_lqcd_fitX.out`, and each set of eigenvectors are found in `data/H_eigenvectors2_lqcd_fitX.out`.
+
+Additionally, this program simulates the two-particle contamination functions at each lQCD mass.
+These are outputting to `correlation_lqcd_fitX.out`.
+While I feel like these simulations should be in a seperate program, it was easier for me to include them as part of this one at the time, though it might be worthwhile seperating them in the future.
+
+### 14.2. Varying only $m_{\pi}^{2}$
+Varying only the pion mass is a decent way to get a quick first look at the finite-volume energy spectrum at lattice sizes outside of the ones used by any lQCD data you have, or when comparing with a single lattice mass (such as comparing to the D200 results in the odd-parity nucleon paper).
+The code for this is found in `mpiFiniteVol.f90`, and compiles to `mpiFin.x`.
+The output files have the same format as in the previous section, though with `_mpi_` instead of `_lqcd_` in the name.
+
+### 14.2. Varying only $L$
+It might be of interest to see how a spectrum varies with the lattice size only, and the code for this is found in `finiteVol.f90`, and compiles to `fin.x`.
+Similar to the previous sections, this program produces the same outputs, though with `_L_` in the name instead.
+
+
+## 15. Finite-Volume Eigenvalue Plotting
+The base plot script for this is `EvMpi.py`.
+This is able to plot the HEFT basis states, and energy eigenvalues.
+Typically however, I'll have several variations of this script specific to each set of lattice data, since they tend to require specific formatting.
+An example of this is the the odd-parity nucleon case where I have `EvMpi_3fm.py`, `EvMpi_2fm.py`, and `EvMpi_D200.py`, which compare the HEFT eigenstates to three different sets of lattice ensembles.
+
+I've tried to write this to be fairly general and straightforward, but it'll require a bit of altering to the specifics of an analysis, such as the labels, the lattice data, and the general formatting.
+I've tried to have the ability to turn off each element of the plot (basis states, eigenvalues, eigenvector highlighting etc.) using booleans, such as `doPlotBare` to highlight the states dominated by bare basis state contributions, or `doPlotBasis` to enable/disable the basis state plotting.
+
+
+## 16. Eigenvector plotting
+
+
+
+## 17. Contaimination Function Plotting
 
 
 ## Other Files
+
+
 
 ### heft.f90
 All code in this project has `heft.f90` as a dependency. This file contains all global variables required for a HEFT study,

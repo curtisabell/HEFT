@@ -4,8 +4,6 @@ program poleSearch
     use heft
     use SMatrix
     use bobyqa_module
-    use stdlib_string_type
-    use stdlib_strings
     implicit none
 
     ! Data input
@@ -76,33 +74,32 @@ program poleSearch
         do zk = 1, max(n_bare, 1)
            i_bare_pole = zk
 
-           ! do zi = 1,5
-              ! do zj = 1,5
-           ! E_pole_guess = cmplx(1.1_DP + (zi-1)*0.3_DP &
-               ! & , -0.01 - (zj-1)*0.02,DP)
-           ! E_pole_guess = cmplx(1.1_DP + (zi-1)*0.3_DP &
-               ! & , -0.05_DP * 2.0_DP**(zj-1.0_DP))
+           do zi = 1,5
+              do zj = 1,5
+                 E_pole_guess = cmplx(1.1_DP + (zi-1)*0.3_DP &
+                     & , -0.01 - (zj-1)*0.02,DP)
+                 E_pole_guess = cmplx(1.1_DP + (zi-1)*0.3_DP &
+                     & , -0.05_DP * 2.0_DP**(zj-1.0_DP))
 
-           ! do zi = 1,3
-           !    do zj = 1,3
-           !       E_pole_guess = cmplx(1.2_DP + (zi-1)*0.2_DP &
-           !           & , -0.05_DP * 2.0_DP**(zj-1.0_DP))
+                 ! do zi = 1,3
+                 !    do zj = 1,3
+                 !       E_pole_guess = cmplx(1.2_DP + (zi-1)*0.2_DP &
+                 !           & , -0.05_DP * 2.0_DP**(zj-1.0_DP))
 
-           do zi = 1, 2
-              do zj = 1, 1
-                 if (zi.eq.1) then
-                     ! E_pole_guess = cmplx(1.65065073840254_DP,-0.122720220940563_DP, DP)
-                     E_pole_guess = cmplx(1.657_DP, -0.0555_DP, DP)
-                     ! E_pole_guess = cmplx(1.500_DP, -0.050_DP, DP)
-                 else
-                     E_pole_guess = cmplx(1.658_DP, -0.056_DP, DP)
-                 end if
+                 ! do zi = 1, 2
+                 !    do zj = 1, 1
+                 !       if (zi.eq.1) then
+                 !           ! E_pole_guess = cmplx(1.65065073840254_DP,-0.122720220940563_DP, DP)
+                 !           E_pole_guess = cmplx(1.657_DP, -0.0555_DP, DP)
+                 !           ! E_pole_guess = cmplx(1.500_DP, -0.050_DP, DP)
+                 !       else
+                 !           E_pole_guess = cmplx(1.658_DP, -0.056_DP, DP)
+                 !       end if
 
                  E_pole2(:) = (/ real(E_pole_guess, DP), aimag(E_pole_guess) /)
                  write(*,*) 'Pole number:  ', zk, zi, zj
                  write(*,'(a,f8.6,a,f8.6,a)') 'Guess: ', E_pole2(1) &
                      & , ' - ', abs(E_pole2(2)), 'i'
-
 
 
                  ! maxIterations = 1000
@@ -114,6 +111,7 @@ program poleSearch
                  !     & , maxIterations )
 
 
+                 ! initialise BOBYQA parameters
                  bq_npt = 2*2 + 1
                  bq_rhobeg = 1.0d-4
                  bq_rhoend = 1.0d-7

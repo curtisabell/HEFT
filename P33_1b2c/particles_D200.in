@@ -1,0 +1,26 @@
+nParticles   3
+
+Format:
+particle name
+mass
+spin
+parity
+mass slope
+
+pion
+0.1385
+0
+-1
+1.0
+
+Nucleon
+0.98
+0.5
+1
+0.0
+
+Delta
+1.268
+1.5
+1
+0.0

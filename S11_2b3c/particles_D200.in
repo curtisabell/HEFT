@@ -1,0 +1,38 @@
+nParticle 5
+
+Format:
+particle name
+mass
+spin
+parity
+mass slope
+
+pion
+0.1385
+0
+-1
+1.0
+
+eta
+0.5479
+0
+-1
+0.33333
+
+Kaon
+0.4937
+0
+-1
+0.5
+
+Nucleon
+0.953
+0.5
+1
+0.0
+
+Lambda
+1.1297
+0.5
+1
+0.9198
