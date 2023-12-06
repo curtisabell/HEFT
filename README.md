@@ -45,7 +45,9 @@ To do the initial setup manually, go to step 2.
 15. To plot the spectrum, I have a plot script called `EvMpi.py`.
 	Typically I'll have a few of these for different sets of lattice data, such as in the odd-parity nucleon case where I have `EvMpi_3fm.py`, `EvMpi_2fm.py`, and `EvMpi_D200.py`.
 16. To plot the eigenvectors, I have a script called `EvecvMpi.py`.
-17. TODO: Contaimination function plotting
+17. Contamination function outputs are typically generated from `lqcdFin.x`.
+	I decided to calculate the contamination functions at every pion mass, since sometimes the lattice QCD data will lie on an avoided level crossing.
+	In this case, it is helpful to have contamination functions for multiple pion masses in the region of the lQCD data, since you'll want to see how the contamination changes before and after the avoided level crossing.
 18. **Extra:** There are also a few other things I might be interested in, such as comparing multiple parameter sets, such as in the $\Delta(1232)$ regularisation and multiple bare state papers.
   I can search for poles with a varying set of parameters with `multiFitPoles.x`.
   I calculate the finite-volume spectrum for a varying set of parameters with `multiFitFin.x`.
