@@ -20,18 +20,18 @@ To do the initial setup manually, go to step 2.
 2. Make a folder for the new project, and link the makefile from `heftCode/makefile` in this folder.
 3. Enter the details of the system into `HEFT.config`.
 4. Set up an initial guess for the fit parameters in `allFits.params`.
-   If I'm trying to replicate the results of a paper, I will then get the fit parameters from that paper and put them into `allFits.params`, then skip to step TODO.
+   If I'm trying to replicate the results of a paper, I will then get the fit parameters from that paper and put them into `allFits.params`, then skip to step 8.
 5. Get some scattering data to fit to, generally the WI08 solution from [SAID](https://gwdac.phys.gwu.edu/).
    This should be in a file called `dataInf.in` (see the example in this folder)
 6. Setup `HEFTFitting.config` with the bounds on each category of fit parameter, and which parameters will be active in the fitting process.
 7. If I want to run a bounded fit, make and run `fitBQ.x`.
    This program uses Powell's BOBYQA algorithm to minimise a $\chi^2$ between the HEFT phase shift and inelasticity, and the scattering data.
-   If I don't want to use bounds, make and run `fit.x`, which uses minfun (Powell's NEWUOA algorithm).
+   If I don't want to use bounds, make and run `fit.x`, which uses minfun (Powell's NEWUOA (NEW Unconstrained Optimisation with quadratic Approximation) algorithm).
 8. Make sure `HEFTInfinite.config` is correct, with the correct energy range.
 9. Set `iParamChoice` in `allFits.params` to the new parameter set found by the fit procedure, then make and run `inf.x` to calculate the scattering observables for this parameter set.
    I usually plot these using a file called `PhasevE.py`, which is copied from another project I've worked on.
 10. To search for pole positions, you can make and run `poles.x`.
-	This does a grid search from $ 1.0 - 0.01i $ to around $ 2.0 - 0.2i $ GeV, and should pick up the positions of any poles in the $ T $-matrix.
+	This does a grid search from $1.0 - 0.01i$ to around $2.0 - 0.2i$ GeV, and should pick up the positions of any poles in the $ T $-matrix.
 11. In a finite-volume, we're typically interested in how the eigenvalues and eigenvectors of the finite Hamiltonian vary with $m_{\pi}^{2}$.
 	Finite-volume config options such as the $m_{\pi}^2$ range to be calculated are found in `HEFTFinite.config`.
 12. To find the slope of the bare mass(es), I need lattice data to fit to.
@@ -41,7 +41,7 @@ To do the initial setup manually, go to step 2.
 14. To calculate the finite-volume energy spectrum, there are three options.
 	The usual case is that the lattice size $L$ is varying with $m_{\pi}^{2}$, so I run `lqcdFin.x`.
 	If I want to keep $L$ constant and just vary $m_{\pi}^{2}$, I run `mpiFin.x`.
-	If I want to keep the pion mass fixed and vary $L$,
+	If I want to keep the pion mass fixed and vary $L$, I run `fin.x`.
 15. To plot the spectrum, I have a plot script called `EvMpi.py`.
 	Typically I'll have a few of these for different sets of lattice data, such as in the odd-parity nucleon case where I have `EvMpi_3fm.py`, `EvMpi_2fm.py`, and `EvMpi_D200.py`.
 16. To plot the eigenvectors, I have a script called `EvecvMpi.py`.
@@ -54,7 +54,9 @@ To do the initial setup manually, go to step 2.
 Run this script to create a new project, and then skip to step 4.
 Otherwise, go to step 2 of the work flow.
 
-TODO: check this script is still working after the changes I've made, then write this section.
+This script will set-up all of the config files for a new project.
+The script should prompt all required inputs, though the only nuance is that if you want a $\sigma$ meson, you should input "sig", rather than "sigma", since the inputs are case insensitive and that will produce a $\Sigma$ baryon.
+
 
 ## 3. HEFT.config
 I had the general goal over my PhD of being able to do an entire new HEFT study having to change as little as possible in the actual code.
@@ -147,7 +149,7 @@ These parameters are the bare mass(es) $m_{B_{0}}^{(0)}$, the couplings between 
   The actual set of potentials/regulators are set in `HEFT.config`.
 
 If we are attempting to reproduce a previous study, we'll want to insert the parameters from that study into this file, such as the set shown here on line 6.
-We can then skip to Step todo.
+We can then skip to Step 8.
 
 ## 5. Scattering Data
 The first thing we need to perform a fit is some scattering data to fit to. Typically, we’ll get this from the SAID Partial Wave
@@ -211,7 +213,7 @@ If a parameter is held fixed, it’ll use the value of whichever parameter set `
 - The fitting code (`fitScattering_bobyqa.f90`) doesn’t read anything after the previous line. As a result I tend to
 use the space afterwards to store alternative sets of which parameters are fixed, so I can quickly switch between them.
 
-## Constraining the Fit Parameters
+## 7. Constraining the Fit Parameters
 The fitting code I always use now is `fitScattering_bobyqa.f90` (which compiles to `fitBQ.x`). Since this has a
 proper implementation of a bounded parameter search, it is much faster and less likely to get stuck in local minima than the
 old `fitScattering.f90`. In saying that, it is still very easy for the fitting algorithm to get stuck in local minima, so a
@@ -288,6 +290,7 @@ Poles in the $$S-matrix are calculated in `poleSearch.f90`, which compiles to `p
 Currently, this performs a grid search over 25 initial positions, outputting the complex energy which minimises the $S$-matrix for each initial guess.
 
 TODO: Make pole search parameters read from some HEFTPoles.config, instead of hardcoding. Use a config file along the lines of
+
 ```
 # Config file for HEFT pole searching
 
