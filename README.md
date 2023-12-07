@@ -177,10 +177,10 @@ an example file for a system with two bare states and a single channel.
  1  #      Bounds                  Errors
  2  m1     1.2         1.8         1e-5
  3  m2     1.2         1.8         1e-5
- 4  g      0.00001     1.0	       1e-4
- 5  Lam    0.6         1.2	       1e-5
+ 4  g      0.00001     1.0         1e-4
+ 5  Lam    0.6         1.2         1e-5
  6  v     -1.0        -0.00001     1e-4
- 7  Lamv   0.6         1.2	       1e-5
+ 7  Lamv   0.6         1.2         1e-5
  8
  9  # Which parameters are active
 10  # m_b1      m_b2      g_b1c1    g_b2c1    Lam_b1c1  Lam_b2c1   v_c1c1    Lam_v_c1
