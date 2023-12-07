@@ -11,7 +11,7 @@ import sys
 
 
 # ------------------------------------------------------------------
-sys.path.append('../heftCode')
+sys.path.append('../src')
 import readHEFTConfig
 HEFT = readHEFTConfig.HEFTConfig()
 HEFT.readHEFTConfigFile()

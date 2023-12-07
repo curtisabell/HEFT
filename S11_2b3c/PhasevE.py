@@ -14,10 +14,11 @@ pypl.rc('font', size=18, **{'family': 'serif', 'serif': ['Computer Modern']})
 pypl.rc('text', usetex=True)
 fig, ax = pypl.subplots()
 
-sys.path.append('../heftCode')
+sys.path.append('../src')
 import readHEFTConfig
 HEFT = readHEFTConfig.HEFTConfig()
 HEFT.readHEFTConfigFile()
+# HEFT.printHEFTInfo() # for testing
 n_ch = HEFT.n_ch
 n_bare = HEFT.n_bare
 
