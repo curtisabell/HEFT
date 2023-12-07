@@ -88,23 +88,17 @@ An example of this file for the $S_{11}$ 2b3c (odd-parity nucleons) system is sh
 19  # g (2-1 potential), v (2-2),   u (regulator)
 20  B                    B          A
 ```
-1.
-    Lines 3 and 4 simply denote how many two-particle channels are present, and how many bare basis states are present in the system.
-2.
-    Lines 7 through 8 describe each two-particle channel in the system.
-    The details of each hadron are stored in `heftCode/particles.in}, such as the mass, and the mass slope (how it varies in $m_{\pi}^{2}$).
+- Lines 3 and 4 simply denote how many two-particle channels are present, and how many bare basis states are present in the system.
+- Lines 7 through 8 describe each two-particle channel in the system.
+    The details of each hadron are stored in `heftCode/particles.in`, such as the mass, and the mass slope (how it varies in $m_{\pi}^{2}$).
     The partial wave label tells the program which partial wave the channel is interacting in, and is used for things such as choosing whether to start at $k=0$ or $k=1$ in a finite-volume, or having factors of $k^{l}$ for angular momentum $l$ in the potentials.
-3.
-    Line 11 tells the program which of those channel is on-shell in the scattering process (starting from 1).
+- Line 11 tells the program which of those channel is on-shell in the scattering process (starting from 1).
     Generally this is going to be the $ \pi N $ channel, though in the $\Lambda^{*}(1405)$ case it would be a $\bar{K}N$ channel.
-4.
-    Lines 12 and 13 tell the program which file to use for the particle masses.
+- Lines 12 and 13 tell the program which file to use for the particle masses.
     By default, it uses `heftCode/particles.in`.
     When I'm doing a finite-volume study where I want to have slightly larger masses at the physical point, I set `useCustomMasses` to `T`, and give the file name of the new particles file to use.
-5.
-    Lines 16 and 17 are just the labels I give to each bare state, which is helpful for printing/writing data to files.
-6.
-    Line 20 is where I set which potential is used for each interaction.
+- Lines 16 and 17 are just the labels I give to each bare state, which is helpful for printing/writing data to files.
+- Line 20 is where I set which potential is used for each interaction.
     There are three customisation options here, which describe the functions used for $G_{\alpha}^{B_{0}}(k)$, $V_{\alpha\beta}(k,k')$, and the regulator $u(k,\Lambda)$.
     The labels `A`, `B`, etc. correspond to functions in `heftCode/heft.f90`, with names such as `u_k_A`, `g_k_B`, and `f_k_A`.
     Note that `f_k` represents the separable part of $V_{\alpha\beta}(k,k') = v_{\alpha\beta}\, f_{\alpha}(k)\, f_{\beta}(k')$.

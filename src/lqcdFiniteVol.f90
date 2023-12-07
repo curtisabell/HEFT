@@ -376,7 +376,6 @@ program lqcdFiniteVol
        ! begins at 1, for S-wave when we have k=0, need
        ! to start C_3packed at 1 to access k=0.
        ! For P-wave, need to start at 0 to ignore k=0.
-       ! TODO: must be some way to genralise this
        if (ch_pWave(ch_onshell) .eq. 'S') then
            n_k = n_max - C_3zeros + 1
            allocate( C_3packed(n_k) )
