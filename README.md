@@ -25,13 +25,13 @@ To do the initial setup manually, go to step 2.
    This should be in a file called `dataInf.in` (see the example in this folder)
 6. Setup `HEFTFitting.config` with the bounds on each category of fit parameter, and which parameters will be active in the fitting process.
 7. If I want to run a bounded fit, make and run `fitBQ.x`.
-   This program uses Powell's BOBYQA algorithm to minimise a $\chi^2$ between the HEFT phase shift and inelasticity, and the scattering data.
+   This program uses Powell's BOBYQA (Bound Optimization BY Quadratic Approximation) algorithm to minimise a $\chi^2$ between the HEFT phase shift and inelasticity, and the scattering data.
    If I don't want to use bounds, make and run `fit.x`, which uses minfun (Powell's NEWUOA (NEW Unconstrained Optimisation with quadratic Approximation) algorithm).
 8. Make sure `HEFTInfinite.config` is correct, with the correct energy range.
 9. Set `iParamChoice` in `allFits.params` to the new parameter set found by the fit procedure, then make and run `inf.x` to calculate the scattering observables for this parameter set.
    I usually plot these using a file called `PhasevE.py`, which is copied from another project I've worked on.
 10. To search for pole positions, you can make and run `poles.x`.
-	This does a grid search from $1.0 - 0.01i$ to around $2.0 - 0.2i$ GeV, and should pick up the positions of any poles in the $ T $-matrix.
+	This does a grid search from $1.0 - 0.01i$ to around $2.0 - 0.2i$ GeV, and should pick up the positions of any poles in the $T$-matrix.
 11. In a finite-volume, we're typically interested in how the eigenvalues and eigenvectors of the finite Hamiltonian vary with $m_{\pi}^{2}$.
 	Finite-volume config options such as the $m_{\pi}^2$ range to be calculated are found in `HEFTFinite.config`.
 12. To find the slope of the bare mass(es), I need lattice data to fit to.
