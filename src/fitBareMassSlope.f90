@@ -125,7 +125,7 @@ program fitBareMassSlope
             & , slope_low(bareSlopeFitOrder*nActiveBareFits) &
             & , slope_high(bareSlopeFitOrder*nActiveBareFits))
 
-        open(101, file='slopeFitMasses.data', action='read')
+        open(101, file=fileName_lQCD, action='read')
         read(101,*) dummyStr, nMasses
         read(101,*) dummyStr, L_m_pi
         read(101,*)

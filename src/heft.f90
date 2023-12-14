@@ -111,6 +111,7 @@ module heft
     integer :: unit_paramOutput = 201
     character(len=128) :: fileName_paramOutput
     character(len=128) :: fileName_particles = '../src/particles.in'
+    character(len=128) :: fileName_lQCD = 'slopeFitMasses.data'
 
     ! Pole search variables
     complex(DP) :: E_pole
@@ -565,6 +566,11 @@ contains
 
         if (IamRoot) then
             read(file_finite,*) string, slp_bare_default(:)
+
+            read(file_finite,*)
+            read(file_finite,*)
+
+            read(file_finite,*) fileName_lQCD
 
             read(file_finite,*)
             read(file_finite,*)

@@ -293,11 +293,7 @@ program lqcdFiniteVol
     ! Need to correctly vary the lattice extent L as a function of m_pi**2
     !   TODO: need to generalise this a bit for various lattice sizes
     if (IamRoot) then
-        if (abs(L_m_pi-2.0_DP).le.0.1_DP) then
-            open(167, file='slopeFitMasses_2fm.data', action='read')
-        else
-            open(167, file='slopeFitMasses.data', action='read')
-        end if
+        open(167, file=fileName_lQCD, action='read')
         read(167,*) dummyStr, nKappa
         read(167,*)
         read(167,*) dummyStr, nSites
