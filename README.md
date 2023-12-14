@@ -331,8 +331,11 @@ All config options for finite-volume HEFT are stored in `HEFTFinite.config`, an 
   17  slopeOrder     1
   18  defMassSlope   0.96   -0.1
   19
-  20  # Parameter varying
-  21  L_renorm     2.9856
+  20  # file containing lQCD data
+  21  slopeFitMasses.data
+  22
+  23  # Parameter varying
+  24  L_renorm     2.9856
 ```
 
 - Line 4 sets the physical pion mass
@@ -348,7 +351,8 @@ For a proper analysis, instead of this value I'll have both a varying pion mass 
 For example, a slope order of 1 will give $m_{B_{0}} = m_{B_{0}}^{(0)} + \alpha_{B_{0}}\, m_{\pi}^{2}$, while a slope order of 2 will add a $\alpha_{2,B_{0}}\, m_{\pi}^{4}$ term.
 - The parameters given by `defMassSlope` are the $\alpha$ parameters in the bare mass expansion.
 In this example we would therefore have $\alpha_{B_{0}} = 0.96$ GeV${}^{-1}$, and $\alpha_{2,B_{0}} = -0.1$ GeV${}^{-3}$.
-- `L_renorm` is on line 21 is fairly niche, and sets the lattice size used when we perform finite-volume analysis for a varying parameter set, as performed in the $\Delta(1232)$ analysis.
+- The file set on line 21 is used for both fitting the bare mass slopes, and for calculating contamination functions.
+- `L_renorm` is on line 24 is fairly niche, and sets the lattice size used when we perform finite-volume analysis for a varying parameter set, as performed in the $\Delta(1232)$ analysis.
 
 
 ## 13. Fitting the Bare Mass Slopes
@@ -439,9 +443,6 @@ This was mostly used for when I was varying $\Lambda$ in the $\Delta$ study.
 ## 17. Contaimination Function Plotting
 Currently obtaining the contamination functions isn't very generalised, since I did that right at the end of my PhD.
 But there is a script called `plot_contamination.py` which works for the odd-parity nucleons, and should only need a few modifications to work with other systems.
-
-TODO: `lqcdFiniteVol.f90` needs a bit of generalisation to generate the contamination functions, currently changing between the different ways of doing the contaminations (as I considered in the odd-parity paper) is hardcoded into the source.
-
 
 ## Other Files
 
