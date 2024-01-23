@@ -213,6 +213,8 @@ def main():
             print(f'{files[choice-1]} copied')
             res = subprocess.run(f'cp {dirName}/dataInf.in {dirName}/dataInf_orig.in'
                                  , shell=True)
+            res = subprocess.run(f'cp {dirName}/dataInf.in {dirName}/dataInf_pseudo.in'
+                                 , shell=True)
         else:
             print(f'Error in copying:')
             print(f'   stderr: {stderr}')
