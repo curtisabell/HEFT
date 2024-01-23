@@ -58,6 +58,9 @@ lqcdFin.x : ../src/lqcdFiniteVol.f90 $(OBJS)
 multifitFin.x : ../src/multifitFinite.f90 $(OBJS)
 	$(COMPILER) $(CACFLAGS) -o $@ $< $(FIN_OBJS) $(LIBS)
 
+corr.x : ../heftCode/correlationFn.f90 $(OBJS)
+	$(COMPILER) $(CACFLAGS) -o $@ $< $(FIN_OBJS) $(LIBS)
+
 fitBare.x : ../src/fitBareMassSlope.f90 $(OBJS)
 	$(COMPILER) $(CACFLAGS) -o $@ $< $(FIN_OBJS) bobyqa_module.o $(LIBS)
 

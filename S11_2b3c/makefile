@@ -1,109 +1,111 @@
 COMPILER = ifort
-STDLIB_CFLAGS := $(shell pkg-config --cflags fortran_stdlib)
 
-CFLAGS   = -O2 -qmkl $(STDLIB_CFLAGS)
-CACFLAGS   = -coarray -O2 -qmkl -coarray-num-images=1 $(STDLIB_CFLAGS)
-# CFLAGS = -qmkl -O0 -traceback -warn interfaces -fpe0 -check all -real-size 64 -check noarg_temp_created -real-size 64 -coarray-num-images=1 $(STDLIB_CFLAGS)
-SINGLE_CACFLAGS   = -coarray -O2 -qmkl -real-size 64 -coarray-num-images=1 $(STDLIB_CFLAGS)
+CFLAGS   = -O2 -qmkl -pg
+CACFLAGS   = -coarray -O2 -qmkl -coarray-num-images=4
+# CFLAGS = -qmkl -O0 -traceback -warn interfaces -fpe0 -check all -real-size 64 -check noarg_temp_created -real-size 64 -coarray-num-images=1
+SINGLE_CACFLAGS   = -coarray -O2 -qmkl -coarray-num-images=1
 
-# Lapack and numFort libs
+# Lapack library
 LALIBS = -lmkl_lapack95_lp64
-NUMLIBS = -I$(NumFortPath) $(NumFortPath)kinds.o $(NumFortPath)lapack.o $(NumFortPath)NumFort.o $(NumFortPath)minf.o $(NumFortPath)quadpack.o
-STDLIB_LIBS := $(shell pkg-config --libs fortran_stdlib)
-
-LIBS = $(NUMLIBS) $(LALIBS) $(STDLIB_LIBS)
+LIBS = $(LALIBS)
 
 #  Objects to create
-OBJS = heft.o \
+OBJS = kinds.o \
+       heft.o \
        hamiltonian.o \
        SMatrix.o \
+       minf.o \
+       quadpack.o \
+       NumFort.o \
        bobyqa_module.o \
        co_random_numbers.o
 
-FIN_OBJS = heft.o \
+FIN_OBJS = kinds.o \
+           heft.o \
+           minf.o \
+           quadpack.o \
+           NumFort.o \
 	   hamiltonian.o
 
-INF_OBJS = heft.o \
+INF_OBJS = kinds.o \
+           heft.o \
 	   SMatrix.o \
+           minf.o \
+           quadpack.o \
+           NumFort.o \
 	   bobyqa_module.o
 
+
 #  Pattern rule(s)
-%.o : %.f90
-	$(COMPILER) $(CFLAGS) -c $< -I$(NumFortPath)
+%.o : ../src/%.f90
+	$(COMPILER) $(CFLAGS) -c $<
 
-#  targets
-hamiltonian.o : ../heftCode/hamiltonian.f90
-	$(COMPILER) $(CFLAGS) -c $< -I$(NumFortPath)
+co_random_numbers.o : ../src/co_random_numbers.f90
+	$(COMPILER) $(CACFLAGS) -c $<
 
-SMatrix.o : ../heftCode/SMatrix.f90
-	$(COMPILER) $(CFLAGS) -c $< -I$(NumFortPath)
+heft.o : ../src/heft.f90
+	$(COMPILER) $(CACFLAGS) -c $<
 
-bobyqa_module.o : ../heftCode/bobyqa_module.f90
-	$(COMPILER) $(CFLAGS) -c $< -I$(NumFortPath)
-
-co_random_numbers.o : ../heftCode/co_random_numbers.f90
-	$(COMPILER) $(CACFLAGS) -c $< -I$(NumFortPath)
-
-heft.o : ../heftCode/heft.f90
-	$(COMPILER) $(CACFLAGS) -c $< -I$(NumFortPath)
-
-fin.x : ../heftCode/finiteVol.f90 $(OBJS)
+fin.x : ../src/finiteVol.f90 $(OBJS)
 	$(COMPILER) $(CACFLAGS) -o $@ $< $(FIN_OBJS) $(LIBS)
 
-mpiFin.x : ../heftCode/mpiFiniteVol.f90 $(OBJS)
+mpiFin.x : ../src/mpiFiniteVol.f90 $(OBJS)
 	$(COMPILER) $(CACFLAGS) -o $@ $< $(FIN_OBJS) $(LIBS)
 
-lqcdFin.x : ../heftCode/lqcdFiniteVol.f90 $(OBJS)
+lqcdFin.x : ../src/lqcdFiniteVol.f90 $(OBJS)
 	$(COMPILER) $(CACFLAGS) -o $@ $< $(FIN_OBJS) $(LIBS)
 
-multifitFin.x : ../heftCode/multifitFinite.f90 $(OBJS)
+multifitFin.x : ../src/multifitFinite.f90 $(OBJS)
 	$(COMPILER) $(CACFLAGS) -o $@ $< $(FIN_OBJS) $(LIBS)
-
-fitBare.x : ../heftCode/fitBareMassSlope.f90 $(OBJS)
-	$(COMPILER) $(CACFLAGS) -o $@ $< $(FIN_OBJS) bobyqa_module.o $(LIBS)
 
 corr.x : ../heftCode/correlationFn.f90 $(OBJS)
 	$(COMPILER) $(CACFLAGS) -o $@ $< $(FIN_OBJS) $(LIBS)
 
-inf.x : ../heftCode/infiniteVol.f90 $(OBJS)
+fitBare.x : ../src/fitBareMassSlope.f90 $(OBJS)
+	$(COMPILER) $(CACFLAGS) -o $@ $< $(FIN_OBJS) bobyqa_module.o $(LIBS)
+
+inf.x : ../src/infiniteVol.f90 $(OBJS)
 	$(COMPILER) $(SINGLE_CACFLAGS) -o $@ $< $(INF_OBJS) $(LIBS)
 
-fit.x : ../heftCode/fitScattering.f90 $(OBJS)
+fit.x : ../src/fitScattering.f90 $(OBJS)
 	$(COMPILER) $(SINGLE_CACFLAGS) -o $@ $< $(INF_OBJS) $(LIBS)
 
-fitBQ.x : ../heftCode/fitScattering_bobyqa.f90 $(OBJS)
+fitBQ.x : ../src/fitScattering_bobyqa.f90 $(OBJS)
 	$(COMPILER) $(SINGLE_CACFLAGS) -o $@ $< $(INF_OBJS) $(LIBS)
 
-poles.x : ../heftCode/poleSearch.f90 $(OBJS)
+poles.x : ../src/poleSearch.f90 $(OBJS)
 	$(COMPILER) $(SINGLE_CACFLAGS) -o $@ $< $(INF_OBJS) $(LIBS)
 
-multifitPoles.x : ../heftCode/multifitPoles.f90 $(OBJS)
+multifitPoles.x : ../src/multifitPoles.f90 $(OBJS)
 	$(COMPILER) $(SINGLE_CACFLAGS) -o $@ $< $(INF_OBJS) $(LIBS)
 
-TGrid.x : ../heftCode/TMatGrid.f90 $(OBJS)
+TGrid.x : ../src/TMatGrid.f90 $(OBJS)
 	$(COMPILER) $(SINGLE_CACFLAGS) -o $@ $< $(INF_OBJS) $(LIBS)
 
-trainingInf.x : ../heftCode/trainingInfiniteVol.f90 $(OBJS)
+trainingInf.x : ../src/trainingInfiniteVol.f90 $(OBJS)
 	$(COMPILER) $(CACFLAGS) -o $@ $< $(INF_OBJS) co_random_numbers.o $(LIBS)
 
-MCInf.x : ../heftCode/MCInfiniteVol.f90 $(OBJS)
-	$(COMPILER) $(CACFLAGS) -o $@ $< $(INF_OBJS) co_random_numbers.o $(LIBS)
-
-test.x : test.f90 $(OBJS)
-	$(COMPILER) $(CACFLAGS) -o $@ $< $(OBJS) $(LIBS)
 
 
 #  Dependencies
+kinds.o:
 
-heft.o:
+quadpack.o: kinds.o
 
-hamiltonian.o: heft.o
+minf.o: kinds.o
 
-SMatrix.o: heft.o
+NumFort.o: kinds.o quadpack.o minf.o
 
-bobyqa_module.o:
+heft.o: NumFort.o kinds.o
 
-co_random_numbers.o:
+hamiltonian.o: kinds.o heft.o
+
+SMatrix.o: kinds.o heft.o
+
+bobyqa_module.o: kinds.o
+
+co_random_numbers.o: kinds.o
+
 
 
 # Clean up rule
