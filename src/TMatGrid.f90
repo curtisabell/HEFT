@@ -1,10 +1,8 @@
-program infiniteVol
+program TMatGrid
     use kinds
     use numFort
     use heft
     use SMatrix
-    use stdlib_string_type
-    use stdlib_strings
     implicit none
 
     integer :: i_re, i_im ! loop vars
@@ -18,7 +16,7 @@ program infiniteVol
     real(DP), dimension(2) :: E_2d
     real(DP) :: invQuantity ! Tmat for 0b, A for nb
 
-    type(string_type) :: fileName_grid
+    character(len=:), allocatable :: fileName_grid
 
     call initialiseHEFT()
     call printCurrentParameters(iParamChoice)
@@ -40,8 +38,8 @@ program infiniteVol
         E_imag_max = -0.1_DP
 
         fileName_grid = 'data/TMatGrid_fit' &
-            & // to_string(iParamChoice) // '.out'
-        open(101, file=char(fileName_grid), action='write')
+            & // trim(int2str(iParamChoice)) // '.out'
+        open(101, file=trim(fileName_grid), action='write')
 
 
         do i_im = 0, nPoints
@@ -84,4 +82,4 @@ program infiniteVol
     call finaliseHEFT()
     !-----------------------------------------------------------------------!
 
-end program infiniteVol
+end program TMatGrid

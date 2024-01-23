@@ -4,8 +4,6 @@ program fitInfiniteVol
     use heft
     use SMatrix
     use bobyqa_module
-    use stdlib_string_type
-    use stdlib_strings
     implicit none
 
     ! Data input
@@ -48,7 +46,7 @@ program fitInfiniteVol
     logical :: fitPseudoData
     real(DP) :: pseudo_uncertainty
     real(DP) :: SrDataMin = 0.0005_DP
-    type(string_type) :: fileName_scatData
+    character(len=128) :: fileName_scatData
     logical :: useRandomInit = .false.
 
     ! Fitting mins
@@ -89,12 +87,12 @@ program fitInfiniteVol
         else
             fileName_scatData = 'dataInf.in'
         end if
-        write(*,*) 'Fitting to ' // fileName_scatData
+        write(*,*) 'Fitting to ' // trim(fileName_scatData)
         write(*,*)
 
-        if (verbose) write(*,*) 'Reading ' // fileName_scatData
-        open(104, file=char(fileName_scatData), action='read')
-        if (verbose) write(*,'(a,i0)') ' Opened '//fileName_scatData//' as ID: ', 104
+        if (verbose) write(*,*) 'Reading ' // trim(fileName_scatData)
+        open(104, file=trim(fileName_scatData), action='read')
+        if (verbose) write(*,'(a,i0)') ' Opened '//trim(fileName_scatData)//' as ID: ', 104
         read(104,*) nPoints
         ! Allocate the data arrays
         allocate( E_data(nPoints), phaseShiftData(nPoints) &
@@ -323,6 +321,7 @@ contains
 
 
     function colour_array(arr, colour, fmt, mask_in) result(out)
+        ! Converts an array of real numbers into a coloured string
         implicit none
         real(DP), dimension(:), intent(in) :: arr
         character(len=*), intent(in) :: colour
@@ -330,8 +329,9 @@ contains
         logical, dimension(size(arr)), intent(in), optional :: mask_in
 
         logical :: isMasked
-        type(string_type) :: out
+        character(len=:), allocatable :: out
         character(len=7) :: col, reset
+        character(len=32) :: numString
         integer :: i_arr
 
         ! Check if there is a mask
@@ -366,17 +366,15 @@ contains
         out = ''
         do i_arr = 1, size(arr)
            if (isMasked) then
+               write(numString,fmt) arr(i_arr)
                if (mask_in(i_arr)) then
-                   out = out // col // to_string(arr(i_arr),fmt) &
-                       & // reset
+                   out = out // col // trim(adjustl(numString))  // '  ' // reset
                else
-                   out = out // to_string(arr(i_arr),fmt)
+                   out = out // reset // trim(adjustl(numString)) // '  '
                end if
 
            else
-               ! out = out // to_string(arr(i_arr),fmt)
-               out = out // col // to_string(arr(i_arr),fmt) &
-                   & // reset
+               out = out // col // trim(adjustl(numString)) // '  ' // reset
            end if
         end do
     end function colour_array
@@ -426,11 +424,11 @@ contains
             x_min(:) = x(:)
             if (printMin) then
                 ! colour_array makes the variables which arent being varied grey
-                write(*,*) to_string(fitCounter,'i10') // '    x_min:' &
-                    & // colour_array(fitParams, 'grey', 'f10.4', .not.isActiveParam)
+                write(*,'(a)') trim(int2str(fitCounter)) // '    x_min:  ' &
+                    & // colour_array(fitParams, 'grey', '(f10.4)', .not.isActiveParam)
                 write(*,'(14x,a,f0.2,a)') 'chi2 = ', f, '   |   ' &
-                    & //pot_choices//'   |   '//'fit'//to_string(iParamChoice) &
-                    & //'   |   '//char(fileName_scatData)//'   |   bobyqa'
+                    & //pot_choices//'   |   '//'fit'//trim(int2str(iParamChoice)) &
+                    & //'   |   '//trim(fileName_scatData)//'   |   bobyqa'
                 write(*,*)
             end if
         end if

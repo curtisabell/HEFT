@@ -4,8 +4,6 @@ program poleSearch
     use heft
     use SMatrix
     use bobyqa_module
-    use stdlib_string_type
-    use stdlib_strings
     implicit none
 
     ! Data input

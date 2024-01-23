@@ -84,7 +84,7 @@ program fitInfiniteVol
     real(DP) :: fit_t_start, fit_t_end, fit_t_mid
     logical :: limitFit = .true.
     logical :: fitPseudoData = .false.
-    type(string_type) :: fileName_scatData
+    character(len=128) :: fileName_scatData
 
     ! Fitting mins
     real(DP) :: chi2_min = HUGE(1.0_DP)
@@ -112,8 +112,8 @@ program fitInfiniteVol
             fileName_scatData = 'dataInf.in'
         end if
 
-        if (verbose) write(*,*) 'Reading ' // fileName_scatData
-        open(104, file=char(fileName_scatData), action='read')
+        if (verbose) write(*,*) 'Reading ' // trim(fileName_scatData)
+        open(104, file=trim(fileName_scatData), action='read')
         if (verbose) write(*,'(a,i0)') ' Opened dataInf.in as ID: ', 104
         read(104,*) nPoints
         ! Allocate the data arrays
@@ -426,16 +426,21 @@ contains
         if (f.lt.chi2_min) then
             chi2_min = f
             x_min(:) = xTrans(:)
-            write(*,*) to_string(fitCounter,'i10') // '    x_min:' &
-                & // colour_array(fitParams, 'grey', 'f10.4', .not.isActiveParam)
-            write(*,'(14x,a,f0.2,a)') 'chi2 = ', f, '   |   '//pot_choices//'   |   minf'
+            ! colour_array makes the variables which arent being varied grey
+            write(*,'(a)') trim(int2str(fitCounter)) // '    x_min:  ' &
+                & // colour_array(fitParams, 'grey', '(f10.4)', .not.isActiveParam)
+            write(*,'(14x,a,f0.2,a)') 'chi2 = ', f, '   |   ' &
+                & //pot_choices//'   |   '//'fit'//trim(int2str(iParamChoice)) &
+                & //'   |   '//trim(fileName_scatData)//'   |   minf'
             write(*,*)
         end if
 
     end subroutine parameterFit
 
 
+
     function colour_array(arr, colour, fmt, mask_in) result(out)
+        ! Converts an array of real numbers into a coloured string
         implicit none
         real(DP), dimension(:), intent(in) :: arr
         character(len=*), intent(in) :: colour
@@ -443,8 +448,9 @@ contains
         logical, dimension(size(arr)), intent(in), optional :: mask_in
 
         logical :: isMasked
-        type(string_type) :: out
+        character(len=:), allocatable :: out
         character(len=7) :: col, reset
+        character(len=32) :: numString
         integer :: i_arr
 
         ! Check if there is a mask
@@ -479,21 +485,18 @@ contains
         out = ''
         do i_arr = 1, size(arr)
            if (isMasked) then
+               write(numString,fmt) arr(i_arr)
                if (mask_in(i_arr)) then
-                   out = out // col // to_string(arr(i_arr),fmt) &
-                       & // reset
+                   out = out // col // trim(adjustl(numString))  // '  ' // reset
                else
-                   out = out // to_string(arr(i_arr),fmt)
+                   out = out // reset // trim(adjustl(numString)) // '  '
                end if
 
            else
-               ! out = out // to_string(arr(i_arr),fmt)
-               out = out // col // to_string(arr(i_arr),fmt) &
-                   & // reset
+               out = out // col // trim(adjustl(numString)) // '  ' // reset
            end if
         end do
     end function colour_array
-
 
 
 end program fitInfiniteVol
