@@ -73,7 +73,7 @@ program lqcdFiniteVol
     integer, dimension(:), allocatable    :: ch_num
     real(DP), dimension(:), allocatable   :: E_int[:] ! eigenvalues
     real(DP), dimension(:), allocatable   :: E_temp
-    real(DP), dimension(:), allocatable   :: k_allowed
+    real(DP), dimension(:,:), allocatable :: k_allowed
     integer,  dimension(:), allocatable   :: C_3n!, C_3packed
     integer, dimension(:,:), allocatable  :: bare_index[:]
     integer,  dimension(:), allocatable   :: index_arr
@@ -385,12 +385,15 @@ program lqcdFiniteVol
        N_H = n_bare + n_mesh
 
        allocate( H(N_H,N_H)[*], omega(N_H)[*], E_temp(N_H) )
-       allocate( index_arr(N_H), k_allowed(n_k) )
+       allocate( index_arr(N_H), k_allowed(n_k,n_ch) )
        allocate( E_int(N_H)[*] )
 
        ! Excludes momentum when C_3(n) = 0, e.g. n=7
-       k_allowed(:) = 2.0_DP*pi/L * sqrt( real(pack( (/ (i,i=n_init_k,n_max) /), &
-           & C_3n(n_init_k:n_max) .ne. 0), DP) ) * hbar_c
+       do i = 1, n_ch
+          k_allowed(:,i) = 2.0_DP*pi/L * sqrt(real(pack([(i,i=n_init_k,n_max-(1-n_init_k))] &
+              & , C_3n(n_init_k:(n_max-(1-n_init_k))) .ne. 0), DP) ) * hbar_c
+       end do
+       index_arr(:) = [ (i,i=1,N_H) ]
 
 
        ! Generate the hamiltonian, see hamiltonian.f90
@@ -417,7 +420,6 @@ program lqcdFiniteVol
        call syevd( H(:,:),  E_int(:), jobz='V' )
 
        ! Info about the 3 states with largest bare state(s) contributions
-       index_arr(:) = (/ (i,i=1,N_H) /)
        do ii = 1, n_bare
           bare_index(ii,1) = maxloc(H(ii,:)**2, 1)
           bare_index(ii,2) = maxloc(H(ii,:)**2 &

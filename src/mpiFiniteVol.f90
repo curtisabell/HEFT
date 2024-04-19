@@ -64,7 +64,7 @@ program mpiFiniteVol
     integer, dimension(:), allocatable    :: ch_num
     real(DP), dimension(:), allocatable   :: E_int[:] ! eigenvalues
     real(DP), dimension(:), allocatable   :: E_temp
-    real(DP), dimension(:), allocatable   :: k_allowed
+    real(DP), dimension(:,:), allocatable :: k_allowed
     integer,  dimension(:), allocatable   :: C_3n!, C_3packed
     integer, dimension(:,:), allocatable  :: bare_index[:]
     integer,  dimension(:), allocatable   :: index_arr
@@ -219,7 +219,7 @@ program mpiFiniteVol
 
     ! ---------------------Initial Hamiltonian Setup--------------------
     k_max_sqrd = inverse_u_k(u_kmax, Lambda_max)**2
-    n_max = k_max_sqrd * (L/2.0_DP/pi/hbar_c)**2
+    n_max = k_max_sqrd * (L/2.0_DP/pi/hbar_c)**2 + 1
     n_max = maxval( (/ n_max, n_min_forced /) )
 
     allocate( C_3n(0:n_max) )
@@ -247,13 +247,15 @@ program mpiFiniteVol
     N_H = n_bare + n_mesh
 
     allocate( H(N_H,N_H)[*], omega(N_H)[*], E_temp(N_H) )
-    allocate( index_arr(N_H), k_allowed(n_k) )
+    allocate( index_arr(N_H), k_allowed(n_k,n_ch) )
     allocate( E_int(N_H)[*] )
 
     ! Excludes momentum when C_3(n) = 0, e.g. n=7
-    k_allowed(:) = 2.0_DP*pi/L * sqrt( real(pack( (/ (i,i=n_init_k,n_max) /), &
-        & C_3n(n_init_k:n_max) .ne. 0), DP) ) * hbar_c
-    index_arr(:) = (/ (i,i=1,N_H) /)
+    do i = 1, n_ch
+       k_allowed(:,i) = 2.0_DP*pi/L * sqrt(real(pack([(i,i=n_init_k,n_max-(1-n_init_k))] &
+           & , C_3n(n_init_k:(n_max-(1-n_init_k))) .ne. 0), DP) ) * hbar_c
+    end do
+    index_arr(:) = [ (i,i=1,N_H) ]
 
     if (IamRoot) then
         write(*,'(a10,f10.3,a10,f6.2,a10,i8)') 'm_pi0: ', m_pi0, 'L: ', L, 'n_H: ', n_H

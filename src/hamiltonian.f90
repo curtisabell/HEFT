@@ -13,7 +13,7 @@ contains
     implicit none
     real(DP), dimension(:,:), intent(out) :: H
     real(DP), dimension(:), intent(out)   :: omega
-    real(DP), dimension(:) :: k
+    real(DP), dimension(:,:) :: k
     real(DP), intent(in) :: L
 
     ! ith, jth elements of H
@@ -42,7 +42,7 @@ contains
        ch_j = mod(jj-1-n_bare,n_ch) + 1
        ! Momentum index in j'th position
        jk = (jj-1-n_bare)/n_ch + 1
-       k_jk = k(jk)
+       k_jk = k(jk, ch_j)
        ! bare index in j'th pos
        if (jj.le.n_bare) bare_j = jj
 
@@ -51,7 +51,7 @@ contains
           ch_i = mod(ii-1-n_bare,n_ch) + 1
           ! Momentum index in i'th position
           ik = (ii-1-n_bare)/n_ch + 1
-          k_ik = k(ik)
+          k_ik = k(ik, ch_i)
 
           ! Non-interacting Hamiltonian diagonals (H_0)
           if (ii.eq.jj .and. ii.gt.n_bare) then

@@ -49,7 +49,7 @@ program finiteVol
     integer , dimension(:), allocatable   :: ch_num
     real(DP), dimension(:), allocatable   :: E_int[:] ! eigenvalues
     real(DP), dimension(:), allocatable   :: E_temp
-    real(DP), dimension(:), allocatable   :: k_allowed
+    real(DP), dimension(:,:), allocatable :: k_allowed
     integer,  dimension(:), allocatable   :: C_3n !, C_3packed
     integer,  dimension(:), allocatable   :: index_arr
 
@@ -163,7 +163,10 @@ program finiteVol
 
        ! n_max = int(k_max_sqrd * (L/2.0_DP/pi/hbar_c)**2) + n_bare
 
-       n_max = int(k_max_sqrd * (L/2.0_DP/pi/hbar_c)**2)
+       ! Add 1 since this allows us to subtract 1 in the case
+       !    where we have an S-wave channel with k=0, giving
+       !    the same number of momenta in k_allowed for each channel
+       n_max = int(k_max_sqrd * (L/2.0_DP/pi/hbar_c)**2) + 1
        n_max = maxval( (/ n_max, n_min_forced /) )
 
        ! Need to reduce the size of the matrix Hamiltonian by the number of times
@@ -189,7 +192,6 @@ program finiteVol
            allocate( C_3packed(0:n_k) )
        end if
 
-
        C_3packed(:) = pack(C_3n(:), C_3n(:) .ne. 0)
        n_mesh = (1 - n_init_k + n_k)*n_ch
        N_H = n_bare + n_mesh
@@ -198,12 +200,14 @@ program finiteVol
 
        allocate( H(N_H,N_H)[*] )
        allocate( E_int(N_H)[*],  omega(N_H)[*], E_temp(N_H) )
-       allocate( index_arr(N_H), k_allowed(n_k) )
+       allocate( index_arr(N_H), k_allowed(n_k,n_ch) )
 
        ! Excludes momentum when C_3(n) = 0, e.g. n=7
-       k_allowed(:) = 2.0_DP*pi/L * sqrt( real(pack( (/ (i,i=n_init_k,n_max) /), &
-           & C_3n(n_init_k:n_max) .ne. 0), DP) ) * hbar_c
-       index_arr(:) = (/ (i,i=1,N_H) /)
+       do i = 1, n_ch
+          k_allowed(:,i) = 2.0_DP*pi/L * sqrt(real(pack([(i,i=n_init_k,n_max-(1-n_init_k))] &
+              & , C_3n(n_init_k:(n_max-(1-n_init_k))) .ne. 0), DP) ) * hbar_c
+       end do
+       index_arr(:) = [ (i,i=1,N_H) ]
 
        ! See hamiltonian.f90
        call generateHamiltonian(H, omega, k_allowed, L)
@@ -266,11 +270,6 @@ program finiteVol
                   write(108, '(f8.4,16f14.9)') L[jImg] &
                       & , abs(H(:16,bare_index(1,1)[jImg])[jImg]**2)
               end if
-
-              ! ! old Write eigenvectors
-              ! do ii = 1, 11
-              !    write(109,'(f8.4,11f14.9)') L[jImg], abs(H(:8,ii)[jImg])**2
-              ! end do
 
               ! write Eigenvectors
               do ii = 1, 16
