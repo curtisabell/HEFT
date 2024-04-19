@@ -197,7 +197,7 @@ program mpiFiniteVol
         deallocate(ch_num)
     end if
 
-    Lambda_max = maxval( (/maxval( Lambda(:,:), dim=2 ), Lambda_v(:)/) )
+    Lambda_max = maxval( [maxval( Lambda(:,:), dim=2 ), Lambda_v(:)] )
     L = L_m_pi
 
     m_pi2_max = m_pi_max**2
@@ -283,8 +283,6 @@ program mpiFiniteVol
        end if
        m_pi = sqrt(m_pi2)
 
-       ! write(*,*) m_pi0**2, m_pi2_counter, m_pi2
-
        do jj = 1,n_ch
           m_mes(jj) = sqrt( m_mes_phys(jj)**2 + slp_mes(jj)*(m_pi2 - m_pi0**2) )
           m_bar(jj) = m_bar_phys(jj) + slp_bar(jj)*(m_pi2 - m_pi0**2)
@@ -301,8 +299,6 @@ program mpiFiniteVol
        ! Generate the hamiltonian, see hamiltonian.f90
        call generateHamiltonian(H, omega, k_allowed, L)
 
-       ! if (m_pi2_counter_nImg .eq. init_mpi2_counter) then
-       !     write(*,*) 'iImg = ', iImg
        if (m_pi2_counter .eq. init_mpi2_counter) then
            write(*,*) '---------------Initial Hamiltonian---------------'
            do i = 1,7
@@ -320,16 +316,6 @@ program mpiFiniteVol
               write(142,'('//trim(int2str(N_H))//'f12.6)') H(i, :)
            end do
        end if
-
-       ! if (m_pi2_counter .eq. m_pi2_counter_end) then
-       !    write(*,*)
-       !    write(*,*) '----------------Final Hamiltonian----------------'
-       !    do i = 1,7
-       !       write(*,'(10f7.3)') H(i,1:7)
-       !    end do
-       !    write(*,*) '-------------------------------------------------'
-       !    write(*,*)
-       ! end if
 
        ! Solves for eigenvalues of H
        call syevd( H(:,:),  E_int(:), jobz='V' )
@@ -368,7 +354,6 @@ program mpiFiniteVol
 
               ! Write eigenvectors
               do ii = 1, 11
-                 ! write(105,'(f8.4,11f14.9)') m_pi2[jImg], abs(H(ii,:8)[jImg])**2
                  write(105,'(12f14.9)') m_pi2[jImg], abs(H(ii,:8)[jImg])**2
               end do
 
@@ -430,34 +415,6 @@ program mpiFiniteVol
 
 contains
 
-    ! pure function timePrint(t_in) result(timeString)
-    !   implicit none
-    !   real(DP), intent(in) :: t_in
-    !   character(len=6) :: timeString
-    !   real(DP) :: t
-
-    !   t = abs(t_in)
-    !   if (t.le.120.0_DP) then
-    !      write(timeString,'(f5.1,a1)') t, 's'
-    !   else
-    !      t = t/60.0_DP
-
-    !      if (t.le.120.0_DP) then
-    !         write(timeString,'(f5.1,a1)') t, 'm'
-    !      else
-    !         t = t/60.0_DP
-
-    !         if (t.le.48.0_DP) then
-    !            write(timeString,'(f5.1,a1)') t, 'h'
-    !         else
-    !            t = t/24.0_DP
-    !            write(timeString,'(f5.1,a1)') t, 'd'
-    !         end if
-    !      end if
-    !   end if
-    ! end function timePrint
-
-
     subroutine count_3_integers(C_3, n_max)
         implicit none
         integer, intent(in) :: n_max
@@ -513,13 +470,6 @@ contains
 
         f = sum( (m_Bar_lat(:) - m_Bare_fit(:))**2 &
             & / (dm_pi_lat(:)**2 + dm_Bar_lat(:)**2*alpha**2) )
-
-        ! write(*,*) m_Bar_lat(:)
-        ! write(*,*) m_Bare_fit(:)
-        ! write(*,*)
-        ! write(*,*) m_Bar_lat(2:)
-        ! write(*,*) m_Bare_fit(2:)
-        ! STOP
 
         ! Only fit to the last few
         f = sum( (m_Bar_lat(2:) - m_Bare_fit(2:))**2 &

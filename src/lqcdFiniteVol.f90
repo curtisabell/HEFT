@@ -365,9 +365,6 @@ program lqcdFiniteVol
        ! Get rid of all the zero states
        C_3zeros = count(C_3n(:) .eq. 0)
 
-       ! n_k = n_max - C_3zeros
-       ! allocate( C_3packed(0:n_k) )
-
        ! Because the index ik in hamiltonian.f90 always
        ! begins at 1, for S-wave when we have k=0, need
        ! to start C_3packed at 1 to access k=0.
