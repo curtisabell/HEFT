@@ -20,7 +20,7 @@ module heft
     integer, parameter :: root_image = 1
 
     ! SU6 couplings
-    real(DP), parameter :: D_SU6 = 0.76_DP
+    real(DP), parameter :: D_SU6 = 0.761_DP
     real(DP), parameter :: F_SU6 = 0.50_DP
     real(DP) :: C_SU6 = -2.0_DP * D_SU6
     ! real(DP) :: chi_Delta = 3.0_DP/32.0_DP/pi/f_pi**2 * 2.0_DP/9.0_DP * C_SU6**2
@@ -817,6 +817,7 @@ contains
            M(jj:, jj) = vec(size_v-fin+1 : size_v-start+1)
            M(jj, jj:) = M(jj:, jj)
         end do
+
     end function vectorToSymMat
 
 
@@ -868,11 +869,14 @@ contains
         ! Local variables
         integer :: dimM
         integer :: iM, jM
+        integer :: vecIndex
 
         dimM = size(M,1)
-        do jM = 1,dimM
-           do iM = 1,jM
-              vec((jM*(jM-1))/2 + iM) = M(iM,jM)
+        vecIndex = 1
+        do iM = 1, dimM
+           do jM = iM, dimM
+              vec(vecIndex) = M(iM,jM)
+              vecIndex = vecIndex + 1
            end do
         end do
 
