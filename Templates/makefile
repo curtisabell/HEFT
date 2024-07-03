@@ -1,8 +1,8 @@
-COMPILER = ifort
+COMPILER = ifx
 
 CFLAGS   = -O2 -qmkl -pg
 CACFLAGS   = -coarray -O2 -qmkl -coarray-num-images=4
-# CFLAGS = -qmkl -O0 -traceback -warn interfaces -fpe0 -check all -real-size 64 -check noarg_temp_created -real-size 64 -coarray-num-images=1
+# CFLAGS = -qmkl -O0 -warn all -check all,nouninit -g -traceback -qno-openmp-simd -standard-semantics -fpmodel=precise -coarray-num-images=1
 SINGLE_CACFLAGS   = -coarray -O2 -qmkl -coarray-num-images=1
 
 # Lapack library
