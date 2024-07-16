@@ -168,6 +168,10 @@ module heft
         module procedure pWave_to_AM, AM_to_pWave
     end interface pWaveConvert
 
+    interface aimag
+        module procedure aimag_vector_DP
+    end interface aimag
+
 contains
 
 
@@ -1034,6 +1038,15 @@ contains
         end select
     end function AM_to_pWave
 
+    function aimag_vector_DP(complex_vec)
+        complex(DP), dimension(:), intent(in) :: complex_vec
+        real(DP), dimension(size(complex_vec)) :: aimag_vector_DP
+        ! Local variables
+        integer :: i_z
+        do i_z = 1, size(complex_vec)
+           aimag_vector_DP(i_z) = aimag(complex_vec(i_z))
+        end do
+    end function aimag_vector_DP
 
     subroutine printCurrentParameters(iChoice)
         implicit none
@@ -1201,6 +1214,23 @@ contains
 
     end function g_i_E
 
+    function g_i_F(k, ich, ib)
+        ! Delta(1232) but with 2pi & f_pi
+        implicit none
+        complex(DP), intent(in) :: k
+        integer,  intent(in) :: ich
+        integer,  intent(in) :: ib
+        complex(DP) :: g_i_F
+        ! Local variables
+        complex(DP) :: omega_mes
+        integer :: angMom
+
+        angMom = pWaveConvert(ch_pWave(ich))
+        omega_mes = sqrt(k**2 + m_mes(ich)**2)
+        g_i_F = 1.0_DP/(2.0_DP*pi) * (k/f_pi)**angMom / sqrt(omega_mes) &
+            & * u_k(k, Lambda(ich,ib), ch_pWave(ich))
+
+    end function g_i_F
 
     function f_i_A(k, ich)
         implicit none
@@ -1312,7 +1342,7 @@ contains
 
         angMom = pWaveConvert(ch_pWave(ich)) ! convert P to 1, D to 2 etc.
         omega_mes = sqrt(k**2 + m_mes(ich)**2)
-        f_i_F(1,1) = 1.0_DP/f_pi * k**angMom / omega_mes &
+        f_i_F(1,1) = 1.0_DP/(2.0_DP*pi) * (k/f_pi)**angMom / omega_mes &
             & * u_k(k, Lambda_v(ich), ch_pWave(ich))
 
     end function f_i_F
@@ -1392,6 +1422,9 @@ contains
             u_k_A = 1.0_DP &
                 & / (1.0_DP + (k/Lam)**2)**2
         else
+            ! See Eq. 7 from arxiv:2406.00981
+            ! u_k_A = 1.0_DP &
+                ! & / (1.0_DP + (k/Lam)**2)**((angMom+3)/2)
             u_k_A = 1.0_DP &
                 & / (1.0_DP + (k/Lam)**2)**3
         end if
@@ -1547,6 +1580,10 @@ contains
             inverse_u_k = inverse_u_k_A(u, Lam)
         case('B')
             inverse_u_k = inverse_u_k_B(u, Lam)
+        case('C')
+            inverse_u_k = inverse_u_k_C(u, Lam)
+        case('D')
+            inverse_u_k = inverse_u_k_D(u, Lam)
         end select
     end function inverse_u_k
 
@@ -1647,6 +1684,8 @@ contains
             g_i_cmplx = g_i_D(k, ich, ib)
         case('E')
             g_i_cmplx = g_i_E(k, ich, ib)
+        case('F')
+            g_i_cmplx = g_i_F(k, ich, ib)
         end select
 
     end function g_i_cmplx
