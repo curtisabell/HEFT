@@ -22,7 +22,7 @@ module SMatrix
 
     ! Pole search variables
     real(DP), parameter :: pole_phase = -70.0_DP / degrees
-    real(DP), dimension(:), allocatable :: pole_phases
+    real(DP), dimension(:), allocatable :: pole_phases ! todo: different pole phases per channel
 
     complex(DP) :: k_complex_theta = cmplx(cos(pole_phase), sin(pole_phase), DP)
     integer :: i_bare_pole
@@ -362,7 +362,6 @@ contains
             end do
         end if
 
-        ! TODO: double check I haven't missed any deallocations
         deallocate( k_in, SMatrix,  TMat, ttMat, ttildeMat, M_ii &
             & , rho_i, dkdE, fsqrd, Re_S, Im_S )
 
@@ -640,7 +639,8 @@ contains
 
         dqdE = sqrt(q**2 + m_mes(ich)**2)*sqrt(q**2 + m_bar(ich)**2) / q / E
         Sigma_integrandPV = -q**2 * dqdE &
-            & * gBare(ich,ibare) * gBare(ich,jbare) * g_i(q,ich,ibare)**2
+            & * gBare(ich,ibare) * gBare(ich,jbare) &
+            & * g_i(q,ich,ibare) * g_i(q,ich,jbare)
 
     end function Sigma_integrandPV
 
@@ -665,7 +665,8 @@ contains
         q = k_in * k_complex_theta
         E = sqrt(q**2 + m_mes(ich)**2) + sqrt(q**2 + m_bar(ich)**2)
         Sigma_k_integrand_complex = -q**2 * gBare(ich,ibare) * gBare(ich,jbare) &
-            & * g_i(q,ich,ibare)**2 / (E - E_pole) * k_complex_theta
+            & * g_i(q,ich,ibare) * g_i(q,ich,jbare) &
+            & / (E - E_pole) * k_complex_theta
         Sigma_k_integrand_real = real(Sigma_k_integrand_complex)
 
     end function Sigma_k_integrand_real
@@ -681,7 +682,8 @@ contains
         q = k_in * k_complex_theta
         E = sqrt(q**2 + m_mes(ich)**2) + sqrt(q**2 + m_bar(ich)**2)
         Sigma_k_integrand_complex = -q**2 * gBare(ich,ibare) * gBare(ich,jbare) &
-            & * g_i(q,ich,ibare)**2 / (E - E_pole) * k_complex_theta
+            & * g_i(q,ich,ibare) * g_i(q,ich,jbare) &
+            & / (E - E_pole) * k_complex_theta
         Sigma_k_integrand_imag = aimag(Sigma_k_integrand_complex)
 
     end function Sigma_k_integrand_imag
