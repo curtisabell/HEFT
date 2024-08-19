@@ -252,8 +252,8 @@ program mpiFiniteVol
 
     ! Excludes momentum when C_3(n) = 0, e.g. n=7
     do i = 1, n_ch
-       k_allowed(:,i) = 2.0_DP*pi/L * sqrt(real(pack([(i,i=n_init_k,n_max-(1-n_init_k))] &
-           & , C_3n(n_init_k:(n_max-(1-n_init_k))) .ne. 0), DP) ) * hbar_c
+       k_allowed(:,i) = 2.0_DP*pi/L * sqrt(real(pack([(j,j=n_init_k(i),n_max-(1-n_init_k(i)))] &
+           & , C_3n(n_init_k(i):(n_max-(1-n_init_k(i)))) .ne. 0), DP) ) * hbar_c
     end do
     index_arr(:) = [ (i,i=1,N_H) ]
 
@@ -261,7 +261,6 @@ program mpiFiniteVol
         write(*,'(a10,f10.3,a10,f6.2,a10,i8)') 'm_pi0: ', m_pi0, 'L: ', L, 'n_H: ', n_H
         write(*,*)
     end if
-
 
     ! ------------------------------------------------------------------
     ! -------------------------Do pion mass loop------------------------
@@ -334,12 +333,11 @@ program mpiFiniteVol
        ! ------------------------Write data to files-----------------------
        if (IamRoot) then
            do jImg = 1, nImg
-              E_temp = E_int(:)[jImg]
-
               ! H eigenvalues
+              E_temp = E_int(:)[jImg]
               write(101,wrt_fmt) m_pi2[jImg], E_temp(:Neigs)
-              E_temp = omega(:)[jImg]
               ! H0 eigenvalues
+              E_temp = omega(:)[jImg]
               write(102,wrt_fmt) m_pi2[jImg], E_temp(:Neigs)
 
               do ii = 1, n_bare
@@ -353,7 +351,7 @@ program mpiFiniteVol
               end do
 
               ! Write eigenvectors
-              do ii = 1, 11
+              do ii = 1, 21
                  write(105,'(12f14.9)') m_pi2[jImg], abs(H(ii,:8)[jImg])**2
               end do
 

@@ -193,7 +193,7 @@ program finiteVol
        end if
 
        C_3packed(:) = pack(C_3n(:), C_3n(:) .ne. 0)
-       n_mesh = (1 - n_init_k + n_k)*n_ch
+       n_mesh = (1 - n_init_k(ch_onshell) + n_k)*n_ch
        N_H = n_bare + n_mesh
 
        ! -----------------------Generate Hamiltonian-----------------------
@@ -204,8 +204,8 @@ program finiteVol
 
        ! Excludes momentum when C_3(n) = 0, e.g. n=7
        do i = 1, n_ch
-          k_allowed(:,i) = 2.0_DP*pi/L * sqrt(real(pack([(i,i=n_init_k,n_max-(1-n_init_k))] &
-              & , C_3n(n_init_k:(n_max-(1-n_init_k))) .ne. 0), DP) ) * hbar_c
+          k_allowed(:,i) = 2.0_DP*pi/L * sqrt(real(pack([(j,j=n_init_k(i),n_max-(1-n_init_k(i)))] &
+              & , C_3n(n_init_k(i):(n_max-(1-n_init_k(i)))) .ne. 0), DP) ) * hbar_c
        end do
        index_arr(:) = [ (i,i=1,N_H) ]
 

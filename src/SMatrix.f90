@@ -515,13 +515,7 @@ contains
            Ainv(ibare,ibare) = E_pole - m_bare(ibare)
         end do
         Ainv(:,:) = Ainv(:,:) - Sigma_BB(:,:) - SigmaI_BB(:,:)
-
-        ! TODO: Generalise determinant calc for 3+ bare states
-        if (n_bare.eq.1) then
-            detAinv = Ainv(1,1)
-        else if (n_bare.eq.2) then
-            detAinv = Ainv(1,1)*Ainv(2,2) - Ainv(1,2)*Ainv(2,1)
-        end if
+        detAinv = det(Ainv(:,:))
 
         TMat(:,:) = ttMat(:,:)
 
@@ -543,10 +537,7 @@ contains
 
         f = HUGE(1.0_DP)
         if (n_bare.eq.0) then
-            do ii = 1,n_ch
-               ich = ii
-               f = min( f, abs(ttildeMat_inv(ich,ich))**2 )
-            end do
+            f = abs(det(ttildeMat_inv(:,:)))**2
         else
             f = abs(detAinv)**2
         end if

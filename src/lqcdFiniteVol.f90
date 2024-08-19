@@ -1,8 +1,5 @@
 ! TODO:
-! 1. k_allowed should have an index for channel, currently
-!    if I have both S and D wave contributions there's gonna
-!    be a k=0 state in D wave which should be forbidden
-! 2. Correlation function stuff needs to be generalised better,
+! 1. Correlation function stuff needs to be generalised better,
 !    really should have some higher rank object for alpha instead
 !    of alpha1, beta2, etc. Should maybe even be in its own program
 program lqcdFiniteVol
@@ -64,7 +61,7 @@ program lqcdFiniteVol
     logical :: doBareFitPrinting = .false.
 
     integer  :: n_max ! max number of possible momenta
-    integer  :: Neigs = 24 ! Num. of eigenvalues to output
+    integer  :: Neigs = 30 ! Num. of eigenvalues to output
     integer  :: C_3zeros
     real(DP) :: k_max_sqrd ! GeV**2
 
@@ -100,7 +97,7 @@ program lqcdFiniteVol
     real(DP), dimension(:), allocatable :: lqcd_a, lqcd_m_pi, lqcd_L
 
     ! correlation stuff
-    logical :: calculateCorrelations = .true.
+    logical :: calculateCorrelations = .false.
     logical :: useHEFTEigenvectors = .true.
     logical :: removeSecondEigenvalue = .false.
     logical :: contaminationRedLine = .true.
@@ -387,8 +384,8 @@ program lqcdFiniteVol
 
        ! Excludes momentum when C_3(n) = 0, e.g. n=7
        do i = 1, n_ch
-          k_allowed(:,i) = 2.0_DP*pi/L * sqrt(real(pack([(i,i=n_init_k,n_max-(1-n_init_k))] &
-              & , C_3n(n_init_k:(n_max-(1-n_init_k))) .ne. 0), DP) ) * hbar_c
+          k_allowed(:,i) = 2.0_DP*pi/L * sqrt(real(pack([(j,j=n_init_k(i),n_max-(1-n_init_k(i)))] &
+              & , C_3n(n_init_k(i):(n_max-(1-n_init_k(i)))) .ne. 0), DP) ) * hbar_c
        end do
        index_arr(:) = [ (i,i=1,N_H) ]
 
@@ -397,6 +394,10 @@ program lqcdFiniteVol
        call generateHamiltonian(H, omega, k_allowed, L)
 
        if (i_m_pi2 .eq. 1) then
+           do i = 1, 10
+              write(*,*) i, k_allowed(i,1)
+           end do
+
            write(*,*) '---------------Initial Hamiltonian---------------'
            do i = 1,7
               write(*,'(10f7.3)') H(i,1:7)
@@ -416,6 +417,10 @@ program lqcdFiniteVol
        ! Solves for eigenvalues of H
        call syevd( H(:,:),  E_int(:), jobz='V' )
 
+       if (i_m_pi2.eq.1) then
+           write(*,*) E_int(:10)
+       end if
+
        ! Info about the 3 states with largest bare state(s) contributions
        do ii = 1, n_bare
           bare_index(ii,1) = maxloc(H(ii,:)**2, 1)
@@ -426,7 +431,7 @@ program lqcdFiniteVol
               & .and. (index_arr(:) .ne. bare_index(ii,2)))
        end do
 
-       ! calculate correlation function
+       ! ------------------calculate correlation function------------------
        if (calculateCorrelations) then
            t_max = L ! isotropic
            dt = (t_max - t_min) / real(nt-1,DP) + t_min
@@ -469,9 +474,11 @@ program lqcdFiniteVol
                ! beta2 = beta2 * sqrt(scaling_G)
 
                write(*,*)
-               write(*,'(5f6.2,f8.3)') m_pi2, alpha1, H(1,bare_index(1,1)), beta1, H(2,bare_index(1,1)), alpha1*H(1,bare_index(1,1)) &
+               write(*,'(5f6.2,f8.3)') m_pi2, alpha1, H(1,bare_index(1,1)), beta1 &
+                   & , H(2,bare_index(1,1)), alpha1*H(1,bare_index(1,1)) &
                    & + beta1*H(2,bare_index(1,1))
-               write(*,'(5f6.2,f8.3)') m_pi2, alpha1, H(1,bare_index(2,1)), beta1, H(2,bare_index(2,1)), alpha1*H(1,bare_index(2,1)) &
+               write(*,'(5f6.2,f8.3)') m_pi2, alpha1, H(1,bare_index(2,1)), beta1 &
+                   & , H(2,bare_index(2,1)), alpha1*H(1,bare_index(2,1)) &
                    & + beta1*H(2,bare_index(2,1))
 
                ! TODO: dear god this needs a cleanup and rewrite
@@ -568,8 +575,8 @@ program lqcdFiniteVol
               write(102,wrt_fmt) m_pi2[jImg], E_temp(:Neigs)
 
               ! Eigenvectors
-              do ii = 1, 11
-                 write(105,'(12f14.9)') m_pi2[jImg], abs(H(ii,:8)[jImg])**2
+              do ii = 1, 21
+                 write(105,'(31f14.9)') m_pi2[jImg], abs(H(ii,:30)[jImg])**2
               end do
 
               do ii = 1, n_bare

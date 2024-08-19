@@ -335,54 +335,6 @@ contains
 
 
 
-
-    ! subroutine packFitParams()
-    !     ! Packs the variables for fitting into a rank 1 array
-    !     implicit none
-    !     integer :: kk
-
-    !     ! Bare state parameters
-    !     if (n_bare.gt.0) then
-    !         fitParams(1:bare_end) = m_bare
-    !         fitParams(bare_end+1 : g_end) &
-    !             & = reshape(gBare, (/n_ch*n_bare/))
-    !         fitParams(g_end+1 : Lam_end) &
-    !             & = reshape(Lambda, (/n_ch*n_bare/))
-    !     end if
-
-    !     fitParams(Lam_end+1 : v_end) &
-    !         & = symMatToVector(vCh)
-    !     fitParams(v_end+1 : Lam_v_end) = Lambda_v
-
-    !     activeFitParams = pack( fitParams, isActiveParam )
-
-    ! end subroutine packFitParams
-
-
-    ! subroutine unpackFitParams(params)
-    !     ! Unpacks the fit parameters back to the actual variables
-    !     implicit none
-    !     real(DP), dimension(:), intent(inout) :: params
-    !     integer :: kk
-
-    !     ! ! If one of the parameters depends on the value of another, set that here
-    !     ! do kk = 1, size(params)
-    !     !     params(kk) = params(correlationArray(kk)) * correlationValues(kk)
-    !     ! end do
-
-    !     ! fitParams(fitParamIndex) = activeFitParams(:)
-    !     if (n_bare.gt.0) then
-    !         m_bare = params(1:bare_end)
-    !         gBare  = vectorToMat(params(bare_end+1 : g_end), n_ch, n_bare)
-    !         Lambda = vectorToMat(params(g_end+1 : Lam_end),  n_ch, n_bare)
-    !     end if
-
-    !     vCh = vectorToSymMat(params(Lam_end+1 : v_end))
-    !     Lambda_v = params(v_end+1 : Lam_v_end)
-
-    ! end subroutine unpackFitParams
-
-
     subroutine parameterFit(n, x, f)
         implicit none
         integer, intent(in) :: n

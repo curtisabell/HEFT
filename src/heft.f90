@@ -28,12 +28,12 @@ module heft
     integer  :: n_bare
     integer  :: n_ch
     integer  :: n_f
-    integer  :: n_init_k
     real(DP) :: E_gl ! Global energy
     real(DP) :: E_init, E_fin
     integer  :: nPoints_inf
     real(DP) :: m_pi
     logical  :: useDataPoints ! If energy array should be read or generated from E_init, E_fin
+    integer, dimension(:), allocatable  :: n_init_k
     integer,  dimension(:), allocatable   :: C_3packed
 
     real(DP) :: L_min, L_max
@@ -172,8 +172,10 @@ module heft
         module procedure aimag_vector_DP
     end interface aimag
 
+    interface det
+        module procedure detMatDP, detMatZDP
+    end interface
 contains
-
 
     subroutine initialiseHEFT(volume)
         implicit none
@@ -237,7 +239,7 @@ contains
             &, gBare(n_ch,n_bare), vCh(n_ch,n_ch), Lambda(n_ch,n_bare) &
             &, Lambda_v(n_ch), m_bare(n_bare), m_bare_phys(n_bare) &
             &, slp_bar(n_ch), slp_mes(n_ch), id(n_ch,n_ch) &
-            &, ch_labels(n_ch), bare_labels(n_bare) &
+            &, ch_labels(n_ch), bare_labels(n_bare), n_init_k(n_ch) &
             &, ch_AM(n_ch), ch_pWave(n_ch), chNameA(n_ch), chNameB(n_ch))
 
         ! Get the scattering channels for this system
@@ -373,11 +375,13 @@ contains
         end if
 
         ! Set initial value of allowed k
-        if (onshell_pWave.eq.'S' .or. onshell_pWave.eq.'s') then
-            n_init_k = 0
-        else
-            n_init_k = 1
-        end if
+        n_init_k(:) = 0
+        where(ch_pWave(:) .ne. 'S') n_init_k(:) = 1
+        ! if (onshell_pWave.eq.'S' .or. onshell_pWave.eq.'s') then
+        !     n_init_k = 0
+        ! else
+        !     n_init_k = 1
+        ! end if
 
         ! Print scattering channels and bare states
         if (IamRoot) then
@@ -527,7 +531,7 @@ contains
         deallocate(m_mes, m_bar, m_mes_phys, m_bar_phys &
             & , gBare, vCh, Lambda &
             & , Lambda_v, m_bare, m_bare_phys &
-            & , slp_bar, slp_mes, id &
+            & , slp_bar, slp_mes, id, n_init_k &
             & , ch_labels, bare_labels, ch, ch_AM, ch_pWave)
     end subroutine finaliseHEFT
 
@@ -647,7 +651,7 @@ contains
 
 
     subroutine initialiseHEFTPoles()
-      implicit none
+        implicit none
 
     end subroutine initialiseHEFTPoles
 
@@ -783,6 +787,177 @@ contains
 
     end subroutine triangularise
 
+
+    ! Determinant functions for real NxN matrices, general NxN is slow so use
+    !    explicit calculations for up to 4x4
+    function detMatDP1(A) result(det)
+        implicit none
+        real(DP), dimension(1,1), intent(in) :: A
+        real(DP) :: det
+        det = A(1,1)
+    end function detMatDP1
+
+    function detMatDP2(A) result(det)
+        implicit none
+        real(DP), dimension(2,2), intent(in) :: A
+        real(DP) :: det
+        det = A(1,1)*A(2,2) - A(1,2)*A(2,1)
+    end function detMatDP2
+
+    function detMatDP3(A) result(det)
+        implicit none
+        real(DP), dimension(3,3), intent(in) :: A
+        real(DP) :: det
+        det = (A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2) &
+            & - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1) &
+            & + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1))
+    end function detMatDP3
+
+    function detMatDP4(A) result(det)
+        implicit none
+        real(DP), dimension(4,4), intent(in) :: A
+        real(DP) :: det
+        det = A(1,1)*(A(2,2)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+A(2,3)*(A(3,4)*A(4,2)-A(3,2)*A(4,4))+A(2,4)*(A(3,2)*A(4,3)-A(3,3)*A(4,2))) &
+            - A(1,2)*(A(2,1)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+A(2,3)*(A(3,4)*A(4,1)-A(3,1)*A(4,4))+A(2,4)*(A(3,1)*A(4,3)-A(3,3)*A(4,1))) &
+            + A(1,3)*(A(2,1)*(A(3,2)*A(4,4)-A(3,4)*A(4,2))+A(2,2)*(A(3,4)*A(4,1)-A(3,1)*A(4,4))+A(2,4)*(A(3,1)*A(4,2)-A(3,2)*A(4,1))) &
+            - A(1,4)*(A(2,1)*(A(3,2)*A(4,3)-A(3,3)*A(4,2))+A(2,2)*(A(3,3)*A(4,1)-A(3,1)*A(4,3))+A(2,3)*(A(3,1)*A(4,2)-A(3,2)*A(4,1)))
+    end function detMatDP4
+
+    function detMatDPN(A) result(det)
+        implicit none
+        real(DP), dimension(:,:), intent(in) :: A
+        real(DP) :: det
+
+        real(DP), dimension(size(A,1),size(A,2)) :: Awork
+        real(dp), dimension(size(A,1)) :: work  ! work array for LAPACK
+        integer, dimension(size(A,1)) :: ipiv   ! pivot indices
+        integer :: n, info, i_n
+
+        ! External procedures defined in LAPACK
+        external DGETRF
+        ! external DGETRI
+
+        Awork = A
+        n = size(A,1)
+
+        ! DGETRF computes an LU factorization of a general M-by-N matrix A
+        ! using partial pivoting with row interchanges.
+        call dgetrf(n, n, Awork, n, ipiv, info)
+
+        ! Determinant is the product of diagonal elements A = P*L*U
+        det = 1.0_DP
+        do i_n = 1, n
+           det = det * Awork(i_n,i_n)
+        end do
+
+    end function detMatDPN
+
+    function detMatDP(A) result(det)
+        implicit none
+        real(DP), dimension(:,:), intent(in) :: A
+        real(DP) :: det
+
+        integer :: n
+
+        n = size(A,1)
+        select case (n)
+        case (1)
+            det = detMatDP1(A)
+        case (2)
+            det = detMatDP2(A)
+        case (3)
+            det = detMatDP3(A)
+        case (4)
+            det = detMatDP4(A)
+        case (5:)
+            det = detMatDPN(A)
+        end select
+    end function detMatDP
+
+    ! Determinant functions for complex NxN matrices, general NxN is slow so use
+    !    explicit calculations for up to 4x4
+    function detMatZDP1(A) result(det)
+        implicit none
+        complex(DP), dimension(1,1), intent(in) :: A
+        complex(DP) :: det
+        det = A(1,1)
+    end function detMatZDP1
+
+    function detMatZDP2(A) result(det)
+        implicit none
+        complex(DP), dimension(2,2), intent(in) :: A
+        complex(DP) :: det
+        det = A(1,1)*A(2,2) - A(1,2)*A(2,1)
+    end function detMatZDP2
+
+    function detMatZDP3(A) result(det)
+        implicit none
+        complex(DP), dimension(3,3), intent(in) :: A
+        complex(DP) :: det
+        det = (A(1,1)*A(2,2)*A(3,3) - A(1,1)*A(2,3)*A(3,2) &
+            & - A(1,2)*A(2,1)*A(3,3) + A(1,2)*A(2,3)*A(3,1) &
+            & + A(1,3)*A(2,1)*A(3,2) - A(1,3)*A(2,2)*A(3,1))
+    end function detMatZDP3
+
+    function detMatZDP4(A) result(det)
+        implicit none
+        complex(DP), dimension(4,4), intent(in) :: A
+        complex(DP) :: det
+        det = A(1,1)*(A(2,2)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+A(2,3)*(A(3,4)*A(4,2)-A(3,2)*A(4,4))+A(2,4)*(A(3,2)*A(4,3)-A(3,3)*A(4,2))) &
+            - A(1,2)*(A(2,1)*(A(3,3)*A(4,4)-A(3,4)*A(4,3))+A(2,3)*(A(3,4)*A(4,1)-A(3,1)*A(4,4))+A(2,4)*(A(3,1)*A(4,3)-A(3,3)*A(4,1))) &
+            + A(1,3)*(A(2,1)*(A(3,2)*A(4,4)-A(3,4)*A(4,2))+A(2,2)*(A(3,4)*A(4,1)-A(3,1)*A(4,4))+A(2,4)*(A(3,1)*A(4,2)-A(3,2)*A(4,1))) &
+            - A(1,4)*(A(2,1)*(A(3,2)*A(4,3)-A(3,3)*A(4,2))+A(2,2)*(A(3,3)*A(4,1)-A(3,1)*A(4,3))+A(2,3)*(A(3,1)*A(4,2)-A(3,2)*A(4,1)))
+    end function detMatZDP4
+
+    function detMatZDPN(A) result(det)
+        implicit none
+        complex(DP), dimension(:,:), intent(in) :: A
+        complex(DP) :: det
+
+        complex(DP), dimension(size(A,1),size(A,2)) :: Awork
+        complex(dp), dimension(size(A,1)) :: work  ! work array for LAPACK
+        integer, dimension(size(A,1)) :: ipiv   ! pivot indices
+        integer :: n, info, i_n
+
+        ! External procedures defined in LAPACK
+        external ZGETRF
+
+        Awork = A
+        n = size(A,1)
+
+        ! DGETRF computes an LU factorization of a general M-by-N matrix A
+        ! using partial pivoting with row interchanges.
+        call zgetrf(n, n, Awork, n, ipiv, info)
+
+        ! Determinant is the product of diagonal elements A = P*L*U
+        det = 1.0_DP
+        do i_n = 1, n
+           det = det * Awork(i_n,i_n)
+        end do
+
+    end function detMatZDPN
+
+    function detMatZDP(A) result(det)
+        implicit none
+        complex(DP), dimension(:,:), intent(in) :: A
+        complex(DP) :: det
+
+        integer :: n
+
+        n = size(A,1)
+        select case (n)
+        case (1)
+            det = detMatZDP1(A)
+        case (2)
+            det = detMatZDP2(A)
+        case (3)
+            det = detMatZDP3(A)
+        case (4)
+            det = detMatZDP4(A)
+        case (5:)
+            det = detMatZDPN(A)
+        end select
+    end function detMatZDP
 
     function vectorToMat(vec, iM, jM) result(M)
         ! Converts a length N vector into an iM*jM matrix where N = iM*jM
@@ -1424,7 +1599,7 @@ contains
         else
             ! See Eq. 7 from arxiv:2406.00981
             ! u_k_A = 1.0_DP &
-                ! & / (1.0_DP + (k/Lam)**2)**((angMom+3)/2)
+            ! & / (1.0_DP + (k/Lam)**2)**((angMom+3)/2)
             u_k_A = 1.0_DP &
                 & / (1.0_DP + (k/Lam)**2)**3
         end if
